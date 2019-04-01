@@ -1,0 +1,3 @@
+return {
+    delaunay = require("delaunay")
+}
