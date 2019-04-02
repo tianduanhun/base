@@ -2,9 +2,9 @@
 require("cocos.init")
 require("framework.init")
 
-require("app.framework.init")
+require("frameworkEx.init")
 
-local AppBase = import("app.framework.extend").appBaseExtend
+local AppBase = import("frameworkEx.extend").appBaseExtend
 local MyApp = class("MyApp", AppBase)
 
 function MyApp:ctor()

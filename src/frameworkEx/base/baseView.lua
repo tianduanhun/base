@@ -37,10 +37,6 @@ function BaseView:bindCtr()
     self.Ctr_ = self:getCtrClass():getInstance()
 end
 
-function BaseView:getCtr()
-    return self.Ctr_
-end
-
 function BaseView:doLogic(methodName, ...)
     if self.Ctr_ and self.Ctr_.haldler then
         return self.Ctr_:haldler(methodName, ...)
