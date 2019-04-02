@@ -1,15 +1,15 @@
 local AppBase = _require("framework.AppBase")
+local BaseScene = require("baseScene")
 local AppBaseExtend = class("AppBaseExtend", AppBase)
 
-function AppBaseExtend:enterSceneWithAni(sceneName, transitionType, time, more, ...)
-    local scenePackageName = "app.scenes." ..sceneName
-    local sceneClass = import(scenePackageName).getScene()
-    local scene = sceneClass.new(...)
-    display.replaceScene(scene, transitionType, time, more)
-end
-
-function AppBaseExtend:enterScene(sceneName, ...)
-    self:enterSceneWithAni(sceneName, nil, nil, nil, ...)
+function AppBaseExtend:enterScene(viewName, ...)
+    local scene = display.getRunningScene()
+    if not scene then
+        scene = BaseScene.new()
+        display.replaceScene(scene)
+    end
+    local view = self:createView(viewName, ...)
+    scene:pushView(view)
 end
 
 function AppBaseExtend:createView(viewName, ...)

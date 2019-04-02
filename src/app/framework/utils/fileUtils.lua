@@ -71,6 +71,4 @@ function M.getFullPath(path)
     return FileUtils:fullPathForFilename(path)
 end
 
-
-
 return M

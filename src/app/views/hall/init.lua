@@ -1,6 +1,6 @@
 local init = {
     getView = function ()
-        return require("templateCtr")
+        return require("hallView")
     end
 }
 

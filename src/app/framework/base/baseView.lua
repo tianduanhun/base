@@ -2,10 +2,10 @@ local BaseView = class("BaseView", function()
     return cc.Node:create()
 end)
 
-function BaseView:ctor(Ctr_, ...)
-    self.Ctr_ = Ctr_
+function BaseView:ctor(...)
     self:setNodeEventEnabled(true)
     self:init_()
+    self:bindCtr()
     self:onCreate(...)
 end
 
@@ -19,12 +19,22 @@ end
 
 function BaseView:onCleanup()
     self:unBindAllBehavior()
+    self.Ctr_:destroy()
     self.Ctr_ = nil
     self:onDestroy()
 end
 
 -- Overwrite Me
 function BaseView:onDestroy()
+end
+
+-- Overwrite Me
+function BaseView:getCtrClass()
+    return g_BaseCtr
+end
+
+function BaseView:bindCtr()
+    self.Ctr_ = self:getCtrClass():getInstance()
 end
 
 function BaseView:getCtr()

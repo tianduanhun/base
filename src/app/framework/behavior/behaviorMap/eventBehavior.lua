@@ -7,7 +7,8 @@ EventBehavior.exportFuncs = {
 }
 
 function EventBehavior:registerEvent(object)
-    for k, v in pairs(object.registerEvents) do
+    local events = checktable(object.registerEvents)
+    for k, v in pairs(events) do
         if object[v] and type(object[v]) == "function" then
             g_PushCenter.addListener(k, handler(object, v), object)
         end
@@ -27,7 +28,8 @@ local function isPublicMethod(methods, methodName)
 end
 
 function EventBehavior:doMethod(object, methodName, ...)
-    if isPublicMethod(object.exportFuncs, methodName) then
+    local funcs = checktable(object.exportFuncs)
+    if isPublicMethod(funcs, methodName) then
         if object[methodName] then
             return object[methodName](object, ...)
         else

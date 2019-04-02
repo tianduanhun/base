@@ -118,6 +118,4 @@ g_BehaviorMap = behavior.behaviorMap
 local base = import(CURRENT_MODULE_NAME .. ".base")
 g_BaseView = base.baseView
 g_BaseCtr = base.baseCtr
-g_BaseScene = base.baseScene
 g_BaseData = base.baseData
-g_BaseDataInterface = base.baseDataInterface

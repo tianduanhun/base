@@ -1,15 +1,25 @@
-local BaseCtr = class("BaseCtr", function()
-    return cc.Node:create()
-end)
+local BaseCtr = class("BaseCtr")
+
+function BaseCtr:getInstance()
+    if self.instance == nil then
+        self.instance = self.new()
+    end
+    return self.instance
+end
+
+function BaseCtr:destroy()
+    self.instance:onCleanup()
+    self.instance = nil
+end
+--------------------------------------------
 
 BaseCtr.registerEvents = {}
 BaseCtr.exportFuncs = {}
 
-function BaseCtr:ctor(...)
-    self:setNodeEventEnabled(true)
+function BaseCtr:ctor(UI_, ...)
+    self.UI_ = UI_
     self:init_()
     self:onCreate(...)
-    self:createUI()
 end
 
 -- Overwrite Me
@@ -33,23 +43,6 @@ end
 function BaseCtr:onDestroy()
 end
 
-function BaseCtr:getUI()
-    return self.UI_
-end
-
-function BaseCtr:createUI()
-    if self.UI_ then
-        return
-    end
-    self.UI_ = self:buildUI()
-    self:add(self.UI_)
-end
-
--- Overwrite Me
-function BaseCtr:buildUI()
-    return g_BaseView.new(self)
-end
-
 function BaseCtr:handler(methodName, ...)
     if methodName and self[methodName] then
         self[methodName](self, ...)
@@ -59,14 +52,6 @@ end
 function BaseCtr:doView(methodName, ...)
     if self.UI_ and self.UI_.haldler then
         return self.UI_:haldler(methodName, ...)
-    end
-end
-
--- 执行上层控制器逻辑
-function BaseCtr:doUpLayerLogic(methodName, ...)
-    local parent = self:getParent()
-    if parent and parent.doLogic then
-        parent:doLogic(methodName, ...)
     end
 end
 

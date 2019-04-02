@@ -6,9 +6,32 @@ function BaseData:getInstance()
     end
     return self.instance
 end
+
+function BaseData:destroy()
+    self.instance:onCleanup()
+    self.instance = nil
+end
 -------------------------------------------
-function BaseData:ctor()
-    
+function BaseData:ctor(...)
+    self:init_()
+    self:onCreate(...)
+end
+
+-- Overwrite Me
+function BaseData:onCreate(...)
+end
+
+function BaseData:init_()
+    g_BehaviorExtend(self)
+end
+
+function BaseData:onCleanup()
+    self:unBindAllBehavior()
+    self:onDestroy()
+end
+
+-- Overwrite Me
+function BaseData:onDestroy()
 end
 
 return BaseData
