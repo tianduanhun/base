@@ -139,7 +139,7 @@ dump(t)
 
 ]]
 function dump(value, desciption, nesting)
-    if type(nesting) ~= "number" then nesting = 3 end
+    if type(nesting) ~= "number" then nesting = 10 end
 
     local lookupTable = {}
     local result = {}

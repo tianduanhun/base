@@ -65,6 +65,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		string projectDir = "../../..";
 		project.setProjectDir(projectDir);
 		FileUtils::getInstance()->addSearchPath(projectDir);
+		FileUtils::getInstance()->addSearchPath(projectDir + "/src");
 		FileUtils::getInstance()->addSearchPath(projectDir + "/res");
 	}
 

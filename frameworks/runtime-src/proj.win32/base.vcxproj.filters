@@ -76,6 +76,9 @@
     <Filter Include="Classes\quick-src\lua_extensions\lpeg">
       <UniqueIdentifier>{a4fd7d87-ebd2-465d-96b3-ea1b9f74229d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Classes\pbc">
+      <UniqueIdentifier>{1173280a-1864-4ddc-9de4-60a8a5168f21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h">
@@ -191,6 +194,42 @@
     <ClInclude Include="$(QUICK_V3_ROOT)\quick\lib\quick-src\lua_extensions\lpeg\lpvm.h">
       <Filter>Classes\quick-src\lua_extensions\lpeg</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\pbc\alloc.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\array.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\bootstrap.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\context.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\descriptor.pbc.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\map.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\pattern.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\pbc.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\pbc-lua.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\proto.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\stringpool.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\pbc\varint.h">
+      <Filter>Classes\pbc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
@@ -296,6 +335,48 @@
       <Filter>Classes\quick-src\lua_extensions\lpeg</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="..\Classes\pbc\alloc.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\array.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\bootstrap.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\context.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\decode.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\map.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\pattern.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\pbc-lua.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\proto.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\register.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\rmessage.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\stringpool.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\varint.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\pbc\wmessage.c">
+      <Filter>Classes\pbc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

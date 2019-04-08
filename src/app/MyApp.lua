@@ -4,7 +4,7 @@ require("framework.init")
 
 require("frameworkEx.init")
 
-local AppBase = import("frameworkEx.extend").appBaseExtend
+local AppBase = g_Extend.appBaseExtend
 local MyApp = class("MyApp", AppBase)
 
 function MyApp:ctor()

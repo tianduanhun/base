@@ -112,8 +112,8 @@ g_Db = database.db
 g_Dict = database.dict
 
 -- protobuf类
--- local pb = import(CURRENT_MODULE_NAME .. ".pb")
--- g_PbManager = pb.pbManager
+local pb = import(CURRENT_MODULE_NAME .. ".pb")
+g_PbManager = pb.pbManager
 
 -- socket类
 -- local socket = import(CURRENT_MODULE_NAME .. ".socket")
@@ -121,6 +121,7 @@ g_Dict = database.dict
 
 -- cocos方法扩展
 local extend = import(CURRENT_MODULE_NAME .. ".extend")
+g_Extend = extend
 
 -- 组件基础类
 local behavior = import(CURRENT_MODULE_NAME .. ".behavior")

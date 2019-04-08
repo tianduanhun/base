@@ -1,6 +1,3 @@
-local CURRENT_MODULE_NAME = ...
-CURRENT_MODULE_NAME = string.sub(CURRENT_MODULE_NAME, 1, -11)
-
 require("protobuf")
 
 local PbManager = {}
