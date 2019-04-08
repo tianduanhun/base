@@ -6,15 +6,14 @@ _require = clone(require)
 local importModules = {}
 
 local FileUtils = cc.FileUtils:getInstance()
+FileUtils:addSearchPath("src/")
+
 local function loadLuaScript(path)
     path = string.gsub(path, "%.", "/")
-    local ext = {".lua", ".luac"}
-    for i, v in ipairs(ext) do
-        local fullPath = FileUtils:fullPathForFilename("src/" .. path .. v)
-        if FileUtils:isFileExist(fullPath) then
-            local data = FileUtils:getStringFromFile(fullPath)
-            return loadstring(data, fullPath)
-        end
+    local fullPath = FileUtils:fullPathForFilename(path .. ".lua")
+    if FileUtils:isFileExist(fullPath) then
+        local data = FileUtils:getDataFromFile(fullPath)
+        return loadstring(data, fullPath)
     end
 end
 
