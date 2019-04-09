@@ -2,9 +2,7 @@
 require("cocos.init")
 require("framework.init")
 
-require("frameworkEx.init")
-
-local AppBase = g_Extend.appBaseExtend
+local AppBase = require("framework.AppBase")
 local MyApp = class("MyApp", AppBase)
 
 function MyApp:ctor()
@@ -12,7 +10,7 @@ function MyApp:ctor()
 end
 
 function MyApp:run()
-    self:enterScene("hall")
+    self:enterScene("updateScene")
 end
 
 return MyApp

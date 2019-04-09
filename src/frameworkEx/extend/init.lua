@@ -1,5 +1,5 @@
 require("cocosEx")
 return {
-    appBaseExtend = require("appBaseExtend"),
-    tableView = require("TableView")
+    AppBaseExtend = require("AppBaseExtend"),
+    TableView = require("TableView")
 }
