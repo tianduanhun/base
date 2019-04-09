@@ -11,7 +11,7 @@
 /frameworks/runtime-src/proj.android/libcocos2dx/libcocos2dx.iml
 /frameworks/runtime-src/proj.android/libcocos2dx/src/main/libcocos2dx
 
-/frameworks/runtime-src/proj.ios_mac
+#/frameworks/runtime-src/proj.ios_mac
 
 /frameworks/runtime-src/proj.win32/.vs
 /frameworks/runtime-src/proj.win32/Debug.win32
