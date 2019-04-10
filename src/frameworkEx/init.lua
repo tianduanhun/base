@@ -134,3 +134,9 @@ local base = import(CURRENT_MODULE_NAME .. ".base")
 g_BaseView = base.baseView
 g_BaseCtr = base.baseCtr
 g_BaseData = base.baseData
+
+-- 游戏公共模块
+local gameCommon = import("app.common")
+for k,v in pairs(gameCommon) do
+    _G["g_" .. string.ucfirst(k)] = v
+end

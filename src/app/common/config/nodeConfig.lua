@@ -4,7 +4,7 @@ local config = {}
 config.localZorder = {
     loading = 10000,
     toast = 9999,
-    pop = 9998,
+    pop = 9998
 }
 
 return config

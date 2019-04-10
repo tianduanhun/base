@@ -1,4 +1,4 @@
-local ToastManager =class("ToastManager", function()
+local ToastManager = class("ToastManager", function()
     return cc.Node:create()
 end)
 
@@ -18,7 +18,7 @@ function ToastManager.getInstance()
     end
     if not scene._toastManager then
         local toastManager = ToastManager.new()
-        scene:add(toastManager, g_NodeConfig.localZorder.toast)
+        toastManager:addTo(scene, g_NodeConfig.localZorder.toast)
         scene._toastManager = toastManager
     end
     return scene._toastManager
@@ -28,8 +28,7 @@ function ToastManager.pushToast(toast)
     if not toast or toast == "" then
         return
     end
-    local root
-    ToastManager.getInstance()
+    local root = ToastManager.getInstance()
     if not root then
         return
     end

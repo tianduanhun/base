@@ -13,7 +13,7 @@ function BaseData:destroy()
 end
 -------------------------------------------
 function BaseData:ctor(...)
-    self:init_()
+    self:_init()
     self:onCreate(...)
 end
 
@@ -21,7 +21,7 @@ end
 function BaseData:onCreate(...)
 end
 
-function BaseData:init_()
+function BaseData:_init()
     g_BehaviorExtend(self)
 end
 

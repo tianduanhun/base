@@ -4,7 +4,7 @@ end)
 
 function BaseView:ctor(...)
     self:setNodeEventEnabled(true)
-    self:init_()
+    self:_init()
     self:bindCtr()
     self:onCreate(...)
 end
@@ -13,14 +13,14 @@ end
 function BaseView:onCreate(...)
 end
 
-function BaseView:init_()
+function BaseView:_init()
     g_BehaviorExtend(self)
 end
 
 function BaseView:onCleanup()
     self:unBindAllBehavior()
-    self.Ctr_:destroy()
-    self.Ctr_ = nil
+    self._Ctr:destroy()
+    self._Ctr = nil
     self:onDestroy()
 end
 
@@ -34,12 +34,12 @@ function BaseView:getCtrClass()
 end
 
 function BaseView:bindCtr()
-    self.Ctr_ = self:getCtrClass():getInstance()
+    self._Ctr = self:getCtrClass():getInstance()
 end
 
 function BaseView:doLogic(methodName, ...)
-    if self.Ctr_ and self.Ctr_.haldler then
-        return self.Ctr_:haldler(methodName, ...)
+    if self._Ctr and self._Ctr.haldler then
+        return self._Ctr:haldler(methodName, ...)
     end
 end
 

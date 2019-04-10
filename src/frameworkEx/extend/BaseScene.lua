@@ -9,8 +9,8 @@ function BaseScene:ctor()
 end
 
 function BaseScene:onCreate()
-    self._viewNode = cc.Node:create():addTo(self)
-    self._aniLayer = cc.Node:create():addTo(self, 1)
+    self._ViewNode = cc.Node:create():addTo(self)
+    self._AniLayer = cc.Node:create():addTo(self, 1)
 end
 
 function BaseScene:init_()
@@ -24,8 +24,8 @@ end
 
 function BaseScene:pushView(view)
     --@TODO 2019-04-02 17:17:30 切换场景动画
-    self._viewNode:removeAllChildren()
-    self._viewNode:add(view)
+    self._ViewNode:removeAllChildren()
+    self._ViewNode:add(view)
 end
 
 return BaseScene

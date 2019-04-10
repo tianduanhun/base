@@ -1,7 +1,5 @@
 local config = {}
 
-config.appInfo = {
-    
-}
+config.appInfo = {}
 
 return config

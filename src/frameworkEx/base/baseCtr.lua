@@ -16,9 +16,9 @@ end
 BaseCtr.registerEvents = {}
 BaseCtr.exportFuncs = {}
 
-function BaseCtr:ctor(UI_, ...)
-    self.UI_ = UI_
-    self:init_()
+function BaseCtr:ctor(_UI, ...)
+    self._UI = _UI
+    self:_init()
     self:onCreate(...)
 end
 
@@ -26,7 +26,7 @@ end
 function BaseCtr:onCreate(...)
 end
 
-function BaseCtr:init_()
+function BaseCtr:_init()
     g_BehaviorExtend(self)
     self:bindBehavior(g_BehaviorMap.eventBehavior)
     self:registerEvent()
@@ -35,7 +35,7 @@ end
 function BaseCtr:onCleanup()
     self:unRegisterEvent()
     self:unBindAllBehavior()
-    self.UI_ = nil
+    self._UI = nil
     self:onDestroy()
 end
 
@@ -50,8 +50,8 @@ function BaseCtr:handler(methodName, ...)
 end
 
 function BaseCtr:doView(methodName, ...)
-    if self.UI_ and self.UI_.haldler then
-        return self.UI_:haldler(methodName, ...)
+    if self._UI and self._UI.haldler then
+        return self._UI:haldler(methodName, ...)
     end
 end
 
