@@ -7,9 +7,9 @@ local maxHTTPRequest = 5
 local configFileName = "version.json"
 local extName = "Update"
 local extTmpName = "UpdateTemp"
-local writablePath = FileUtils:getWritablePath()
-local extPath = writablePath .. "files/" .. extName .. "/"
-local extTmp = writablePath .. "files/" .. extTmpName .. "/"
+local writablePath = FileUtils:getWritablePath() .. "files/"
+local extPath = writablePath .. extName .. "/"
+local extTmp = writablePath .. extTmpName .. "/"
 -- local cpu = "32"
 -- if jit.arch == "arm64" then
 -- 	cpu = "64"
