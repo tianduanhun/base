@@ -1,0 +1,2 @@
+lua ./create.lua
+pause
