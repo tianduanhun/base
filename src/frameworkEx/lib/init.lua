@@ -1,3 +1,4 @@
 return {
-    delaunay = require("delaunay")
+    -- delaunay = require("delaunay"),
+    bezier =  require("bezier")
 }

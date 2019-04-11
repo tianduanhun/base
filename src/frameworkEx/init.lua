@@ -100,7 +100,7 @@ g_FileUtils = utils.fileUtils
 
 -- 库类
 local lib = import(CURRENT_MODULE_NAME .. ".lib")
--- g_Delaunay = lib.delaunay
+g_Lib = lib
 
 -- 事件类
 local event = import(CURRENT_MODULE_NAME .. ".event")
