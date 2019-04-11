@@ -56,7 +56,7 @@ end
 ]]
 function M.getFileContent(path)
     if M.isFileExist(path) then
-        return FileUtils:getStringFromFile(path)
+        return FileUtils:getDataFromFile(path)
     end
 end
 

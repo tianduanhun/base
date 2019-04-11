@@ -54,8 +54,19 @@ end
     --@input: 
     @return:
 ]]
-function string.ucfirst(input)
+function string.upperFirst(input)
     return string.upper(string.sub(input, 1, 1)) .. string.sub(input, 2)
+end
+
+--[[
+    @desc: 将字符串的第一个字符转为小写，返回结果
+    author:BogeyRuan
+    time:2019-04-11 10:35:48
+    --@input: 
+    @return:
+]]
+function string.lowerFirst(input)
+    return string.lower(string.sub(str, 1, 1)) .. string.sub(str, 2, -1)
 end
 
 --[[

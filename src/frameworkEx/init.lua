@@ -138,5 +138,5 @@ g_BaseData = base.baseData
 -- 游戏公共模块
 local gameCommon = import("app.common")
 for k,v in pairs(gameCommon) do
-    _G["g_" .. string.ucfirst(k)] = v
+    _G["g_" .. string.upperFirst(k)] = v
 end

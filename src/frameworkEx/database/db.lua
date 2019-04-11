@@ -149,7 +149,7 @@ function M.query(tableName, where, order, limit)
         if order then
             local con = " ORDER BY "
             local key = '"' .. order[1] .. '"'
-            local seq = order[2] or "ASC"
+            local seq = order[2] or M.orderType.ASC
             con = con .. key .. " " .. seq
             sql = sql .. con
         end
