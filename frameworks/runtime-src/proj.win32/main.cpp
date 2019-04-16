@@ -61,12 +61,18 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     project.parseCommandLine(args);
 
 	// set environments for debug mode
-	if (project.getProjectDir().empty()) {
+	string rootPath = project.getProjectDir();
+	if (rootPath.empty()) {
 		string projectDir = "../../..";
 		project.setProjectDir(projectDir);
 		FileUtils::getInstance()->addSearchPath(projectDir);
-		FileUtils::getInstance()->addSearchPath(projectDir + "/src");
 		FileUtils::getInstance()->addSearchPath(projectDir + "/res");
+	}
+	else
+	{	
+		FileUtils::getInstance()->setSearchRootPath(rootPath.c_str());
+		FileUtils::getInstance()->setSearchPaths(std::vector<std::string>());
+		FileUtils::getInstance()->setWritablePath(rootPath.c_str());
 	}
 
 #ifndef USE_WIN32_CONSOLE

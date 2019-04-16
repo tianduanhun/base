@@ -105,7 +105,7 @@ bool AppDelegate::applicationDidFinishLaunching()
         string title = "base";
         glview = cocos2d::GLViewImpl::create(title.c_str());
         director->setOpenGLView(glview);
-        director->startAnimation();
+		director->startAnimation();
     }
    
     auto engine = LuaEngine::getInstance();
