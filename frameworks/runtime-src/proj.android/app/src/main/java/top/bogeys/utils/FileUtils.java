@@ -1,5 +1,7 @@
 package top.bogeys.utils;
 
+import android.os.Environment;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -59,5 +61,24 @@ public final class FileUtils {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * 判断sd卡是否启用
+     * @return
+     */
+    public static boolean isSDCardEnabled(){
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
+    /**
+     * 获取sd卡根目录
+     * @return
+     */
+    public static String getSDCardPath(){
+        if (isSDCardEnabled()){
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
+        return "";
     }
 }
