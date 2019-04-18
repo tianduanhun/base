@@ -1,7 +1,11 @@
 package top.bogeys.utils;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,6 +50,7 @@ public final class UUIDUtils {
         return null;
     }
 
+    @SuppressLint({"MissingPermission", "HardwareIds"})
     public static String getUUID(){
         String uuid = null;
         SharedPreferences sharedPreferences = getApp().getSharedPreferences("uuid", Context.MODE_PRIVATE);
@@ -73,6 +78,20 @@ public final class UUIDUtils {
                 }
             }
         }
+
+        // 生成一个uuid
+        if (uuid == null || "".equals(uuid)){
+            boolean hasPermission = PermissionUtils.isPermissionGranted(Manifest.permission.READ_PHONE_STATE);
+            if (hasPermission){
+                TelephonyManager tm = (TelephonyManager) getApp().getSystemService(Context.TELEPHONY_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    uuid = tm.getImei();
+                }else{
+                    uuid = tm.getDeviceId();
+                }
+            }
+        }
+
         if (uuid == null || "".equals(uuid)){
             uuid = UUID.randomUUID().toString();
         }

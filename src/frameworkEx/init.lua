@@ -111,12 +111,9 @@ local database = import(CURRENT_MODULE_NAME .. ".database")
 g_Db = database.db
 g_Dict = database.dict
 
--- protobuf类
--- local pb = import(CURRENT_MODULE_NAME .. ".pb")
--- g_PbManager = pb.pbManager
-
 -- socket类
 -- local socket = import(CURRENT_MODULE_NAME .. ".socket")
+-- g_PbManager = socket.pbManager
 -- g_SocketManager = socket.socketManager
 
 -- cocos方法扩展
@@ -134,6 +131,10 @@ local base = import(CURRENT_MODULE_NAME .. ".base")
 g_BaseView = base.baseView
 g_BaseCtr = base.baseCtr
 g_BaseData = base.baseData
+
+-- 原生方法
+local native = import(CURRENT_MODULE_NAME .. ".native")
+g_NativeCall = native.nativeCall
 
 -- 游戏公共模块
 local gameCommon = import("app.common")

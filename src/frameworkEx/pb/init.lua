@@ -1,3 +1,0 @@
-return {
-    pbManager = require("pbManager")
-}

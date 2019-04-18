@@ -8,9 +8,6 @@ function HallView:getCtrClass()
 end
 
 function HallView:onEnter()
-    local node = cc.DrawNode:create()
-    node:drawDot(cc.p(display.cx, display.height), 3, cc.c4f(1,1,1,1))
-    cc.Director:getInstance():setNotificationNode(node)
 end
 
 function HallView:onDestroy()

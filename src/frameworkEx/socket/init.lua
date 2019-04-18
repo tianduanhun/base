@@ -1,3 +1,4 @@
 return {
-    socketManager = require("socketManager")
+    socketManager = require("socketManager"),
+    pbManager = require("pbManager")
 }

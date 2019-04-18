@@ -10,6 +10,7 @@ function MyApp:ctor()
 end
 
 function MyApp:run()
+    math.newrandomseed()
     self:enterScene("updateScene")
 end
 

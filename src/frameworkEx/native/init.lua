@@ -1,0 +1,3 @@
+return {
+    nativeCall = require("nativeCall")
+}
