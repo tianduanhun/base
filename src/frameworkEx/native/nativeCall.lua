@@ -1,14 +1,25 @@
 local NativeCall = {}
 
+local callStaticMethod
+if device.platform == "android" then
+    callStaticMethod = LuaJavaBridge.callStaticMethod
+elseif device.platform == "ios" or device.platform == "mac" then
+    callStaticMethod = LuaObjcBridge.callStaticMethod
+else
+    NativeCall.callSystem = function()
+    end
+    return NativeCall
+end
+
 local className = "top.bogeys.export.ExportFunc"
 local config = {
-    getUUID             = {result = "string", default = ""}, --获取UUID
-    saveUUID            = {param = {"uuid:string"}}, --保存UUID
+    getUUID = {result = "string", default = ""}, --获取UUID
+    saveUUID = {param = {"uuid:string"}} --保存UUID
 }
 
 local function checkParams(method, params)
     local data = config[method].param or {}
-    for i,v in ipairs(data) do
+    for i, v in ipairs(data) do
         if not params then
             error(method .. " params is empty")
         end
@@ -25,13 +36,14 @@ local signConfig = {
     ["number"] = "F",
     ["boolean"] = "Z",
     ["string"] = "Ljava/lang/String;",
-    ["function"] = "I",
+    ["function"] = "I"
 }
+
 local function getSign(method)
     local data = config[method]
     local sign = "("
     if data.param and not table.isEmpty(data.param) then
-        for k,v in ipairs(data.param) do
+        for k, v in ipairs(data.param) do
             local paramType = (string.split(v, ":"))[2]
             if signConfig[paramType] then
                 sign = sign .. signConfig[paramType]
@@ -49,18 +61,16 @@ local function getSign(method)
     return sign
 end
 
-function NativeCall.callSystem(method, params, callback)
+function NativeCall.callSystem(method, params)
     assert(method and config[method], "method is not exist : " .. method)
     checkParams(method, params)
-    local sign = getSign(method)
-    if device.platform == "windows" then
-        return
-    end
-    local bool, result = luaj.callStaticMethod(className, method, params, sign)
+    params = checktable(params)
+    local bool, result = callStaticMethod(className, method, params, getSign(method))
     if bool then
         return result
     else
-        print(method .. " call failed")
+        print(method .. " call failed", result)
+        return config[method].default
     end
 end
 
