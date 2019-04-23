@@ -1,4 +1,6 @@
 return {
-    -- delaunay = require("delaunay"),
-    bezier =  require("bezier")
+    -- lib = {
+    --     delaunay = require("delaunay"),
+    --     bezier =  require("bezier")
+    -- }
 }

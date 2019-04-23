@@ -89,16 +89,14 @@ function unimport(path)
 end
 
 -- 加载自定义框架,先加载utils
-local dirs = {"utils", "lib", "event", "database", "socket", "extend", "behavior", "base", "native"}
+local dirs = {"utils", "lib", "event", "database", "socket", "extend", "behavior", "base", "native", "app.common"}
 for i, v in ipairs(dirs) do
-    local module = import(CURRENT_MODULE_NAME .. "." .. v)
+    local moduleName = CURRENT_MODULE_NAME .. "." .. v
+    if string.find(v, "%.") then
+        moduleName = v
+    end
+    local module = import(moduleName)
     for k, v in pairs(module) do
         _G["g_" .. string.upperFirst(k)] = v
     end
-end
-
--- 游戏公共模块
-local gameCommon = import("app.common")
-for k, v in pairs(gameCommon) do
-    _G["g_" .. string.upperFirst(k)] = v
 end
