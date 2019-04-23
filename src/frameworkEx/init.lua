@@ -20,16 +20,14 @@ end
 function import(path)
     assert(path and path ~= "", "The path is empty")
     path = string.gsub(path, "%.", "/")
-    local result = package.loaded[path]
+    local result = importModules[path]
     if not result then
         local env = {}
-        env.getPath = function()
-            return path .. "/"
-        end
+        env.PKGPATH = path .. "/"
         local function require(path)
             path = string.gsub(path, "%.", "/")
-            path = env.getPath() .. path
-            local result = package.loaded[path]
+            path = env.PKGPATH .. path
+            local result = importModules[path]
             if not result then
                 local loadFunc = loadLuaScript(path)
                 if type(loadFunc) ~= "function" then
@@ -37,8 +35,7 @@ function import(path)
                 end
                 setfenv(loadFunc, env)
                 result = loadFunc()
-                package.loaded[path] = result
-                importModules[path] = true
+                importModules[path] = result
             end
             return result
         end
@@ -60,8 +57,7 @@ function import(path)
         )
         setfenv(loadFunc, env)
         result = loadFunc()
-        package.loaded[path] = result
-        importModules[path] = true
+        importModules[path] = result
     end
     return result
 end
@@ -75,7 +71,6 @@ function unimport(path)
     for k, _ in pairs(importModules) do
         local key = string.gsub(k, "%.", "/")
         if string.sub(key, 1, pathLen) == path then
-            importModules[key] = nil
             table.insert(temp, key)
         end
     end
@@ -86,58 +81,24 @@ function unimport(path)
         end
     )
     for i, v in ipairs(temp) do
-        if package.loaded[v]._DESTROY and type(package.loaded[v]._DESTROY) == "function" then
-            package.loaded[v]._DESTROY()
+        if importModules[v]._DESTROY and type(importModules[v]._DESTROY) == "function" then
+            importModules[v]._DESTROY()
         end
-        package.loaded[v] = nil
+        importModules[v] = nil
     end
 end
 
--- 加载自定义框架
--- 工具类
-local utils = import(CURRENT_MODULE_NAME .. ".utils")
-g_FileUtils = utils.fileUtils
-
--- 库类
-local lib = import(CURRENT_MODULE_NAME .. ".lib")
-g_Lib = lib
-
--- 事件类
-local event = import(CURRENT_MODULE_NAME .. ".event")
-g_PushCenter = event.pushCenter
-
--- 数据存储类
-local database = import(CURRENT_MODULE_NAME .. ".database")
-g_Db = database.db
-g_Dict = database.dict
-
--- socket类
--- local socket = import(CURRENT_MODULE_NAME .. ".socket")
--- g_PbManager = socket.pbManager
--- g_SocketManager = socket.socketManager
-
--- cocos方法扩展
-local extend = import(CURRENT_MODULE_NAME .. ".extend")
-g_Extend = extend
-
--- 组件基础类
-local behavior = import(CURRENT_MODULE_NAME .. ".behavior")
-g_BehaviorExtend = behavior.behaviorExtend
-g_BehaviorBase = behavior.behaviorBase
-g_BehaviorMap = behavior.behaviorMap
-
--- mvc基础类
-local base = import(CURRENT_MODULE_NAME .. ".base")
-g_BaseView = base.baseView
-g_BaseCtr = base.baseCtr
-g_BaseData = base.baseData
-
--- 原生方法
-local native = import(CURRENT_MODULE_NAME .. ".native")
-g_NativeCall = native.nativeCall
+-- 加载自定义框架,先加载utils
+local dirs = {"utils", "lib", "event", "database", "socket", "extend", "behavior", "base", "native"}
+for i, v in ipairs(dirs) do
+    local module = import(CURRENT_MODULE_NAME .. "." .. v)
+    for k, v in pairs(module) do
+        _G["g_" .. string.upperFirst(k)] = v
+    end
+end
 
 -- 游戏公共模块
 local gameCommon = import("app.common")
-for k,v in pairs(gameCommon) do
+for k, v in pairs(gameCommon) do
     _G["g_" .. string.upperFirst(k)] = v
 end

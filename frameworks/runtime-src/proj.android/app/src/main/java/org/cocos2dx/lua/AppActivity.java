@@ -30,9 +30,6 @@ import android.os.Bundle;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
-import top.bogeys.constant.RequestCodeConstans;
-import top.bogeys.utils.PermissionUtils;
-
 public class AppActivity extends Cocos2dxActivity{
     private static AppActivity app;
 
@@ -41,14 +38,6 @@ public class AppActivity extends Cocos2dxActivity{
 		super.onCreate(savedInstanceState);
 		app = this;
 	}
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == RequestCodeConstans.PERMISSION_CODE){
-            PermissionUtils.onRequestPermissionsResult(permissions, grantResults);
-        }
-    }
 
     public static AppActivity getApp(){
 	    return app;

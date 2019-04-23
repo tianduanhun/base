@@ -11,32 +11,17 @@ else
     return NativeCall
 end
 
-local className = "top.bogeys.export.ExportFunc"
-local config = {
-    getUUID = {result = "string", default = ""}, --获取UUID
-    saveUUID = {param = {"uuid:string"}} --保存UUID
-}
-
-local function checkParams(method, params)
-    local data = config[method].param or {}
-    for i, v in ipairs(data) do
-        if not params then
-            error(method .. " params is empty")
-        end
-        if not params[i] then
-            error(method .. " params #" .. i .. " is empty")
-        end
-        if type(params[i]) ~= (string.split(v, ":"))[2] then
-            error(method .. " params #" .. i .. " type is error")
-        end
-    end
-end
-
 local signConfig = {
     ["number"] = "F",
     ["boolean"] = "Z",
     ["string"] = "Ljava/lang/String;",
     ["function"] = "I"
+}
+
+local className = "top.bogeys.export.ExportFunc"
+local config = {
+    getUUID = {result = "string", default = ""}, --获取UUID
+    saveUUID = {param = {"uuid:string"}} --保存UUID
 }
 
 local function getSign(method)
@@ -59,6 +44,21 @@ local function getSign(method)
         sign = sign .. "V"
     end
     return sign
+end
+
+local function checkParams(method, params)
+    local data = config[method].param or {}
+    for i, v in ipairs(data) do
+        if not params then
+            error(method .. " params is empty")
+        end
+        if not params[i] then
+            error(method .. " params #" .. i .. " is empty")
+        end
+        if type(params[i]) ~= (string.split(v, ":"))[2] then
+            error(method .. " params #" .. i .. " type is error")
+        end
+    end
 end
 
 function NativeCall.callSystem(method, params)
