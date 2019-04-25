@@ -1,5 +1,5 @@
 function cc.Node:pos(x, y)
-    if not y then
+    if not y and type(x) == "table" then
         y = x.y
         x = x.x
     end

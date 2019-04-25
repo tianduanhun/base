@@ -23,7 +23,6 @@ function BaseScene:onCleanup()
 end
 
 function BaseScene:pushView(view)
-    --@TODO 2019-04-02 17:17:30 切换场景动画
     self._ViewNode:removeAllChildren()
     self._ViewNode:add(view)
 end
