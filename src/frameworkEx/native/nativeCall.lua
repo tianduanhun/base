@@ -1,14 +1,15 @@
 local NativeCall = {}
 
 local callStaticMethod
-if device.platform == "android" then
+local platform = cc.Application:getInstance():getTargetPlatform()
+if platform == cc.PLATFORM_OS_ANDROID then
     callStaticMethod = LuaJavaBridge.callStaticMethod
-elseif device.platform == "ios" or device.platform == "mac" then
+elseif platform == cc.PLATFORM_OS_MAC or platform == cc.PLATFORM_OS_IPHONE then
     callStaticMethod = LuaObjcBridge.callStaticMethod
 else
-    NativeCall.callSystem = function()
+    callStaticMethod = function(...)
+        return false, "platform is not ios or android"
     end
-    return NativeCall
 end
 
 local signConfig = {
@@ -19,6 +20,7 @@ local signConfig = {
 }
 
 local className = "top.bogeys.export.ExportFunc"
+-- result:返回数据类型, default:默认返回值, param:参数对应字段和类型
 local config = {
     getUUID = {result = "string", default = ""}, --获取UUID
     saveUUID = {param = {"uuid:string"}} --保存UUID
