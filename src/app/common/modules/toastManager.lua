@@ -12,16 +12,12 @@ function ToastManager:onCleanup()
 end
 
 function ToastManager.getInstance()
-    local scene = display.getRunningScene()
-    if not scene then
-        return
+    local node = cc.Director:getInstance():getNotificationNode()
+    if not node then
+        node = ToastManager.new()
+        cc.Director:getInstance():setNotificationNode(node)
     end
-    if not scene._toastManager then
-        local toastManager = ToastManager.new()
-        toastManager:addTo(scene, g_NodeConfig.localZorder.toast)
-        scene._toastManager = toastManager
-    end
-    return scene._toastManager
+    return node
 end
 
 function ToastManager.pushToast(toast)
