@@ -1,6 +1,6 @@
 local init = {
     getData = function()
-        return require("templateData")
+        return require("templateData"):getInstance()
     end,
     _DESTROY = function()
         require("templateData"):destroy()

@@ -11,7 +11,7 @@ end
 
 function MyApp:run()
     math.newrandomseed()
-    self:enterScene("updateScene")
+    self:enterScene("update.updateScene")
 end
 
 return MyApp

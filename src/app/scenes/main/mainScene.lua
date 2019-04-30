@@ -1,30 +1,30 @@
-local BaseScene = class("BaseScene", function()
+local MainScene = class("MainScene", function()
     return cc.Scene:create()
 end)
 
-function BaseScene:ctor()
+function MainScene:ctor()
     self:setNodeEventEnabled(true)
     self:init_()
     self:onCreate()
 end
 
-function BaseScene:onCreate()
+function MainScene:onCreate()
     self._ViewNode = cc.Node:create():addTo(self)
     self._AniLayer = cc.Node:create():addTo(self, 1)
 end
 
-function BaseScene:init_()
+function MainScene:init_()
     g_BehaviorExtend(self)
 end
 
-function BaseScene:onCleanup()
+function MainScene:onCleanup()
     self:unBindAllBehavior()
     self:onDestroy()
 end
 
-function BaseScene:pushView(view)
+function MainScene:pushView(view)
     self._ViewNode:removeAllChildren()
     self._ViewNode:add(view)
 end
 
-return BaseScene
+return MainScene

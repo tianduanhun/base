@@ -1,6 +1,6 @@
-local Updater = require("app.scenes.Updater")
+local Updater = require("app.scenes.update.Updater")
 
-local UpdateScene = class("UpdateScene", function ( )
+local UpdateScene = class("UpdateScene", function ()
     return display.newScene()
 end)
 
@@ -31,13 +31,13 @@ end
 
 function UpdateScene:enterGame()
     require("frameworkEx.init")
-    g_Extend.AppBaseExtend.new():run()
+    g_AppExtend.AppBaseExtend.new():run()
 end
 
 function UpdateScene:onCleanup()
     Updater = nil
-    package.loaded["app.scenes.Updater"] = nil
-    package.loaded["app.scenes.updateScene"] = nil
+    package.loaded["app.scenes.update.Updater"] = nil
+    package.loaded["app.scenes.update.updateScene"] = nil
 end
 
 return UpdateScene
