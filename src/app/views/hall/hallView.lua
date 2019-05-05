@@ -14,5 +14,4 @@ function HallView:onDestroy()
 end
 --------------------------------------------------
 
-
 return HallView

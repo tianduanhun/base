@@ -1,18 +1,5 @@
 local BaseCtr = class("BaseCtr")
 
-function BaseCtr:getInstance()
-    if self.instance == nil then
-        self.instance = self.new()
-    end
-    return self.instance
-end
-
-function BaseCtr:destroy()
-    self.instance:onCleanup()
-    self.instance = nil
-end
---------------------------------------------
-
 BaseCtr.registerEvents = {}
 BaseCtr.exportFuncs = {}
 

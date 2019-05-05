@@ -723,7 +723,7 @@ local LuaDebugger = {
     --分割字符串缓存
     splitFilePaths = {},
     DebugLuaFie = "",
-    version = "0.8.9",
+    version = "0.9.0",
     serVarLevel = 4
 }
 local debug_hook = nil
@@ -1032,6 +1032,7 @@ end
 --@endregion
 local function debugger_valueToString(v)
     local vtype = type(v)
+    
     local vstr = nil
     if (vtype == "userdata") then
         if (tolua and tolua.isnull and tolua.isnull(v)) then
@@ -1041,8 +1042,10 @@ local function debugger_valueToString(v)
         end
     elseif (vtype == "table" or vtype == "function" or vtype == "boolean") then
         return tostring(v), vtype
-    else
+    elseif (vtype == "number" ) then
         return v, vtype
+    else
+        return tostring(v), vtype
     end
 end
 local function debugger_setVarInfo(name, value)
@@ -1158,6 +1161,9 @@ local function debugger_receiveDebugBreakInfo()
     end
     if (breakInfoSocket) then
         local msg, status = breakInfoSocket:receive()
+        if(LuaDebugger.isLaunch and status == "closed") then 
+                os.exit()
+        end
         if (msg) then
             local netData = json.decode(msg)
             if netData.event == LuaDebugger.event.S2C_SetBreakPoints then
@@ -1921,7 +1927,7 @@ local function debugger_getBreakVar(body, server)
         local frameId = body.frameId
         local type_ = body.type
         local keys = body.keys
-
+       
         --找到对应的var
         local vars = nil
         if (type_ == 1) then
@@ -2014,16 +2020,25 @@ local function debugger_loop(server)
     while true do
         local line, status = server:receive()
         if (status == "closed") then
+        if(LuaDebugger.isLaunch) then
+            os.exit()
+        else
             debug.sethook()
             coroutine.yield()
+        end
         end
         if (line) then
             local netData = json.decode(line)
             local event = netData.event
             local body = netData.data
             if (event == LuaDebugger.event.S2C_DebugClose) then
+            if(LuaDebugger.isLaunch) then
+                os.exit()
+            else
                 debug.sethook()
                 coroutine.yield()
+            end
+               
             elseif event == LuaDebugger.event.S2C_SetBreakPoints then
                 --设置断点信息
                 local function setB()
@@ -2039,6 +2054,7 @@ local function debugger_loop(server)
                 LuaDebugger.runTimeType = body.runTimeType
                 LuaDebugger.isProntToConsole = body.isProntToConsole
                 LuaDebugger.isFoxGloryProject = body.isFoxGloryProject
+                LuaDebugger.isLaunch = body.isLaunch
                 ResetDebugInfo()
                 LuaDebugger.Run = true
                 local data = coroutine.yield()

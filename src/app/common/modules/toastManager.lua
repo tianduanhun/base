@@ -28,7 +28,7 @@ function ToastManager.pushToast(toast)
     if not root then
         return
     end
-    if root.tips[#root.tips] == toast then
+    if root.tips[#root.tips] == toast then  --短时间内压入相同toast，相同的被忽略
         return
     end
     table.insert(root.tips, toast)

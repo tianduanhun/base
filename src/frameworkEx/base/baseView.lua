@@ -19,7 +19,7 @@ end
 
 function BaseView:onCleanup()
     self:unBindAllBehavior()
-    self._Ctr:destroy()
+    self._Ctr:onCleanup()
     self._Ctr = nil
     self:onDestroy()
 end
@@ -34,7 +34,7 @@ function BaseView:getCtrClass()
 end
 
 function BaseView:bindCtr()
-    self._Ctr = self:getCtrClass():getInstance()
+    self._Ctr = self:getCtrClass().new(self)
 end
 
 function BaseView:doLogic(methodName, ...)
