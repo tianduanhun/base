@@ -5,7 +5,7 @@ local UpdateScene = class("UpdateScene", function ()
 end)
 
 function UpdateScene:ctor()
-    -- Updater.init("UpdateScene", "", function (code, param1, param2)
+    -- Updater.init("update.updateScene", "http://localhost:8080/address", function (code, param1, param2)
     --     if code == 1 then
     --         self:enterGame()
     --     elseif code == 2 then

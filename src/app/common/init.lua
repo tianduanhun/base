@@ -1,7 +1,5 @@
 local init = {
-    appExtend = require("appextend.init"),
-    popupManager = require("modules.popupManager"),
-    toastManager = require("modules.toastManager")
+    appExtend = require("appextend.init")
 }
 
 return init

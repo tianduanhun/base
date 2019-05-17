@@ -5,13 +5,25 @@ local AppBaseExtend = class("AppBaseExtend", AppBase)
 
 function AppBaseExtend:enterScene(viewName, ...)
     local view = self:createView(viewName, ...)
-    self._BaseScene:pushView(view)
+    self._BaseScene:pushScene(view)
 end
 
 function AppBaseExtend:createView(viewName, ...)
     local viewPackageName = "app.views." .. viewName
     local viewClass = import(viewPackageName).getView()
     return viewClass.new(...)
+end
+
+function AppBaseExtend:pushView(view, param)
+    self._BaseScene:pushView(view, param)
+end
+
+function AppBaseExtend:popView(view)
+    self._BaseScene:popView(view)
+end
+
+function AppBaseExtend:pushToast(str)
+    self._BaseScene:pushToast(str)
 end
 
 function AppBaseExtend:run()
