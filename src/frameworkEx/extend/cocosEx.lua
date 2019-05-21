@@ -28,11 +28,11 @@ local function getRealNode(node)
 end
 
 --[[
-    @desc: 高斯模糊
+    @desc: 高斯模糊[shader实现，掉帧严重]
     author:BogeyRuan
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
-	--@[radius]: 模糊半径，默认25
+	--@[radius]: 模糊半径，默认10
 	--@[resolution]: 采样粒度，大多数时间不用传
     @return:
 ]]
@@ -88,6 +88,12 @@ function display.makeNormal(node)
     node:setGLProgramState(glProgramState)
 end
 
+--[[
+    @desc: 截取一张模糊的当前场景的节点
+    author:BogeyRuan
+    time:2019-05-21 15:56:15
+    @return: 
+]]
 function display.captureBlurScene()
     local scene = display.getRunningScene()
     local texture = cc.RenderTexture:create(display.width, display.height)
@@ -95,15 +101,16 @@ function display.captureBlurScene()
     scene:visit()
     texture:endToLua()
 
-    local textureSp = texture:getSprite()
-    display.makeBlur(textureSp)
-    local texture2 = cc.RenderTexture:create(textureSp:getContentSize().width, textureSp:getContentSize().height)
+    texture:pos(0, 0)
+    local blurSp = texture:getSprite()
+    local size = blurSp:getContentSize()
+    blurSp:align(display.CENTER, size.width / 2, size.height / 2)
+    display.makeBlur(blurSp)
+
+    local texture2 = cc.RenderTexture:create(size.width, size.height)
     texture2:beginWithClear(0, 0, 0, 0)
-    textureSp:visit()
+    blurSp:visit()
     texture2:endToLua()
 
-    local blurSp = cc.Sprite:createWithSpriteFrame(texture2:getSprite():getSpriteFrame())
-    blurSp:setRotation(180)
-
-    return blurSp
+    return texture2
 end
