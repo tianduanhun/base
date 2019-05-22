@@ -96,7 +96,7 @@ end
 ]]
 function display.captureBlurScene()
     local scene = display.getRunningScene()
-    local texture = cc.RenderTexture:create(display.width, display.height)
+    local texture = cc.RenderTexture:create(display.width, display.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
     texture:beginWithClear(0, 0, 0, 0)
     scene:visit()
     texture:endToLua()
@@ -107,7 +107,7 @@ function display.captureBlurScene()
     blurSp:align(display.CENTER, size.width / 2, size.height / 2)
     display.makeBlur(blurSp)
 
-    local texture2 = cc.RenderTexture:create(size.width, size.height)
+    local texture2 = cc.RenderTexture:create(size.width, size.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
     texture2:beginWithClear(0, 0, 0, 0)
     blurSp:visit()
     texture2:endToLua()

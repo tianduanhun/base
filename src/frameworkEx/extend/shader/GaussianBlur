@@ -24,7 +24,7 @@ vec4 blur(vec2 p)
         vec2 unit = 1.0 / resolution.xy;
         
         float r = blurRadius;
-        float sampleStep = 1;
+        float sampleStep = 1.0;
         
         float count = 0.0;
         
