@@ -15,16 +15,56 @@ function cc.Node:align(anchorPoint, x, y)
     return self
 end
 
-local function getRealNode(node)
-    local nodeType = tolua.type(node)
-    if nodeType == "ccui.Scale9Sprite" then
-        return node
-    elseif nodeType == "cc.RenderTexture" then
-        return node:getSprite()
-    elseif string.find(nodeType, "ccui") then
-        return node:getVirtualRenderer()
+--[[
+    @desc: size的现加
+    author:BogeyRuan
+    time:2019-05-28 11:33:40
+    --@size: 基础size
+	--@width: 增加的宽或者增加的size
+	--@height: 增加的高
+    @return:
+]]
+function cc.sizeAdd(size, width, height)
+    if type(width) == "table" then
+        height = width.height
+        width = width.width
     end
-    return node
+    return cc.size(size.width + width, size.height + height)
+end
+
+--[[
+    @desc: size的现减
+    author:BogeyRuan
+    time:2019-05-28 11:34:43
+    --@size: 基础size
+	--@width: 减少的宽或者减少的size
+	--@height: 减少的高
+    @return:
+]]
+function cc.sizeSub(size, width, height)
+    if type(width) == "table" then
+        height = width.height
+        width = width.width
+    end
+    return cc.size(size.width - width, size.height - height)
+end
+
+---------------------------------------------------------------------Shader Start
+local function getRealNodes(node, tb)
+    local nodeType = tolua.type(node)
+    if nodeType == "cc.Sprite" or nodeType == "ccui.Scale9Sprite" then
+        table.insert(tb, node)
+    elseif nodeType == "ccui.Button" then
+        getRealNodes(node:getVirtualRenderer(), tb)
+        getRealNodes(node:getTitleRenderer(), tb)
+    elseif nodeType == "cc.Label" then
+        node:updateContent()    --先刷新内部精灵
+        getRealNodes(node:getChildren()[1], tb)
+    elseif nodeType == "cc.RenderTexture" then
+        getRealNodes(node:getSprite(), tb)
+    elseif string.find(nodeType, "ccui") then
+        getRealNodes(node:getVirtualRenderer(), tb)
+    end
 end
 
 --[[
@@ -32,28 +72,31 @@ end
     author:BogeyRuan
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
-	--@[radius]: 模糊半径，默认10
+	--@[radius]: 模糊半径，默认10，半径越大效率越低
 	--@[resolution]: 采样粒度，大多数时间不用传
     @return:
 ]]
 function display.makeBlur(node, radius, resolution)
-    node = getRealNode(node)
-    if resolution == nil then
-        local size = node:getContentSize()
-        if size.width == 0 or size.height == 0 then
-            return
+    local nodes = {}
+    getRealNodes(node, nodes)
+    for _, node in pairs(nodes) do
+        if resolution == nil then
+            local size = node:getContentSize()
+            if size.width == 0 or size.height == 0 then
+                return
+            end
+            resolution = cc.p(size.width, size.height)
         end
-        resolution = cc.p(size.width, size.height)
+        if radius == nil then
+            radius = 10
+        end
+    
+        local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
+        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+        glProgramState:setUniformVec2("resolution" , resolution)
+        glProgramState:setUniformFloat("blurRadius", radius)
+        node:setGLProgramState(glProgramState)
     end
-    if radius == nil then
-        radius = 10
-    end
-
-    local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
-    local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-    glProgramState:setUniformVec2("resolution" , resolution)
-    glProgramState:setUniformFloat("blurRadius", radius)
-    node:setGLProgramState(glProgramState)
 end
 
 --[[
@@ -64,14 +107,17 @@ end
     @return:
 ]]
 function display.makeGray(node)
-    node = getRealNode(node)
-    local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
-    if not glProgram then
-        glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
-        cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
+    local nodes = {}
+    getRealNodes(node, nodes)
+    for _, node in pairs(nodes) do
+        local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
+        if not glProgram then
+            glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
+            cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
+        end
+        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+        node:setGLProgramState(glProgramState)
     end
-    local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-    node:setGLProgramState(glProgramState)
 end
 
 --[[
@@ -82,10 +128,13 @@ end
     @return:
 ]]
 function display.makeNormal(node)
-    node = getRealNode(node)
-    local glProgram = cc.GLProgramCache:getInstance():getGLProgram("ShaderPositionTextureColor_noMVP")
-    local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-    node:setGLProgramState(glProgramState)
+    local nodes = {}
+    getRealNodes(node, nodes)
+    for _, node in pairs(nodes) do
+        local glProgram = cc.GLProgramCache:getInstance():getGLProgram("ShaderPositionTextureColor_noMVP")
+        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+        node:setGLProgramState(glProgramState)
+    end
 end
 
 --[[
@@ -114,3 +163,4 @@ function display.captureBlurScene()
 
     return texture2
 end
+---------------------------------------------------------------------Shader Ended

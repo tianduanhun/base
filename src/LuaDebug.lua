@@ -704,7 +704,7 @@ local breakInfoSocket = nil
 local json = createJson()
 local LuaDebugger = {
     fileMaps = {},
-    Run = true, --表示正常运行只检测断点
+    Run = true,  --表示正常运行只检测断点
     StepIn = false,
     StepInLevel = 0,
     StepNext = false,
@@ -723,7 +723,7 @@ local LuaDebugger = {
     --分割字符串缓存
     splitFilePaths = {},
     DebugLuaFie = "",
-    version = "0.9.0",
+    version = "0.9.3",
     serVarLevel = 4
 }
 local debug_hook = nil
@@ -1031,18 +1031,25 @@ local function debugger_dump(value, desciption, nesting)
 end
 --@endregion
 local function debugger_valueToString(v)
-    local vtype = type(v)
-    
+    local vtype = type(v) 
     local vstr = nil
     if (vtype == "userdata") then
-        if (tolua and tolua.isnull and tolua.isnull(v)) then
-            return "userdata(null)",vtype
+        if (LuaDebugger.isFoxGloryProject) then
+           
+            return "userdata",vtype
+        
         else
             return tostring(v), vtype
         end
     elseif (vtype == "table" or vtype == "function" or vtype == "boolean") then
-        return tostring(v), vtype
-    elseif (vtype == "number" ) then
+        local value = vtype
+        xpcall(function() 
+            value = tostring(v)
+        end,function()
+            value = vtype
+        end)
+        return value, vtype
+    elseif (vtype == "number" or vtype == "string" ) then
         return v, vtype
     else
         return tostring(v), vtype
@@ -1050,8 +1057,12 @@ local function debugger_valueToString(v)
 end
 local function debugger_setVarInfo(name, value)
     local valueStr, valueType = debugger_valueToString(value)
+    local nameStr,nameType = debugger_valueToString(name)
+    if(valueStr == nil) then
+        valueStr = valueType
+    end
     local valueInfo = {
-        name = debugger_valueToString(name),
+        name =nameStr,
         valueType = valueType,
         valueStr = ZZBase64.encode(valueStr)
     }
@@ -1555,6 +1566,7 @@ checkSetVar =
 	elseif(LuaDebugger.isReLoadFile) then
         LuaDebugger.isReLoadFile = false
         LuaDebugger.reLoadFileBody.isReLoad =  debugger_reLoadFile(LuaDebugger.reLoadFileBody)
+        print("重载结果:",LuaDebugger.reLoadFileBody.isReLoad)
         LuaDebugger.reLoadFileBody.script = nil
         LuaDebugger.serVarLevel = LuaDebugger.serVarLevel+1
         _resume(coro_debugger, LuaDebugger.reLoadFileBody)
@@ -1586,15 +1598,15 @@ local function debugger_GeVarInfoBytUserData(server, var)
     local fileds = LuaDebugTool.getUserDataInfo(var)
 
     local varInfos = {}
-    if (tolua and tolua.getpeer) then
-        local luavars = tolua.getpeer(var)
-        if (luavars) then
-            for k, v in pairs(luavars) do
-                local vinfo = debugger_setVarInfo(k, v)
-                table.insert(varInfos, vinfo)
-            end
-        end
-    end
+    -- if (tolua and tolua.getpeer) then
+    --     local luavars = tolua.getpeer(var)
+    --     if (luavars) then
+    --         for k, v in pairs(luavars) do
+    --             local vinfo = debugger_setVarInfo(k, v)
+    --             table.insert(varInfos, vinfo)
+    --         end
+    --     end
+    -- end
 
     --c# vars
     for i = 1, fileds.Count do
@@ -1610,12 +1622,6 @@ local function debugger_GeVarInfoBytUserData(server, var)
         table.insert(varInfos, valueInfo)
     end
     return varInfos
-    -- debugger_sendMsg(server, LuaDebugger.event.C2S_ReqVar, {
-    -- 		variablesReference = variablesReference,
-    -- 		debugSpeedIndex = debugSpeedIndex,
-    -- 		vars = varInfos,
-    -- 		isComplete = 1
-    -- 	})
 end
 
 local function debugger_getValueByScript(value, script)
@@ -1836,7 +1842,6 @@ local function debugger_sendTableField(luatable, vinfos, server, variablesRefere
     if (luatable == nil) then
         return vinfos
     end
-
     for k, v in pairs(luatable) do
         local vinfo = debugger_setVarInfo(k, v)
         table.insert(vinfos, vinfo)
@@ -1863,9 +1868,10 @@ local function debugger_sendTableValues(value, server, variablesReference, debug
     local valueType = type(value)
     local userDataInfos = {}
     local m = nil
+
     if (valueType == "userdata") then
-        if (tolua and tolua.getpeer) then
-            m = getmetatable(value)
+        m = getmetatable(value)
+        if (tolua and tolua.getpeer) then      
             vinfos = debugger_sendTableField(value, vinfos, server, variablesReference, debugSpeedIndex, valueType)
         end
         if (LuaDebugTool) then
@@ -1896,7 +1902,7 @@ local function debugger_sendTableValues(value, server, variablesReference, debug
                     vinfos = {}
                 end
             end
-            m = getmetatable(value)
+           
         end
     else
         m = getmetatable(value)
@@ -1927,7 +1933,6 @@ local function debugger_getBreakVar(body, server)
         local frameId = body.frameId
         local type_ = body.type
         local keys = body.keys
-       
         --找到对应的var
         local vars = nil
         if (type_ == 1) then
@@ -1947,6 +1952,7 @@ local function debugger_getBreakVar(body, server)
         if (value) then
             local valueType = type(value)
             if (valueType == "table" or valueType == "userdata") then
+
                 debugger_sendTableValues(value, server, variablesReference, debugSpeedIndex)
             else
                 if (valueType == "function") then
@@ -2156,32 +2162,31 @@ local function debugger_loop(server)
         end
     end
 end
-
 coro_debugger = coroutine.create(debugger_loop)
+debug_hook = function(event, line)
 
-
-debug_hook =
-    function(event, line)
-    if (not LuaDebugger.isHook) then
+    if(not LuaDebugger.isHook) then
         return
     end
  
-    if (LuaDebugger.Run) then
-        if (event == "line") then
+    if(LuaDebugger.Run) then
+        if(event == "line") then
             local isCheck = false
             for k, breakInfo in pairs(LuaDebugger.breakInfos) do
+
                 for bk, linesInfo in pairs(breakInfo) do
-                    if (linesInfo.lines and linesInfo.lines[line]) then
+
+                    if(linesInfo.lines and linesInfo.lines[line]) then
                         isCheck = true
                         break
                     end
                 end
-                if (isCheck) then
-                    break
-                end
+                if(isCheck) then
+						break
+				end
             end
 
-            if (not isCheck) then
+            if(not isCheck) then
                 return
             end
         else
@@ -2387,8 +2392,6 @@ end
 local function debugger_xpcall()
     --调用 coro_debugger 并传入 参数
     local data = debugger_stackInfo(4, LuaDebugger.event.C2S_HITBreakPoint)
-
-  
     if(data.stack and data.stack[1]) then
         data.stack[1].isXpCall = true    
     end
@@ -2483,8 +2486,8 @@ ZZBase64.__code = {
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/',
 };
 ZZBase64.__decode = {}
-for k, v in pairs(ZZBase64.__code) do
-    ZZBase64.__decode[string.byte(v, 1)] = k - 1
+for k,v in pairs(ZZBase64.__code) do
+    ZZBase64.__decode[string.byte(v,1)] = k - 1
 end
 
 function ZZBase64.encode(text)
@@ -2492,16 +2495,16 @@ function ZZBase64.encode(text)
     local left = len % 3
     len = len - left
     local res = {}
-    local index = 1
+    local index  = 1
     for i = 1, len, 3 do
-        local a = string.byte(text, i)
+        local a = string.byte(text, i )
         local b = string.byte(text, i + 1)
         local c = string.byte(text, i + 2)
         -- num = a<<16 + b<<8 + c
         local num = a * 65536 + b * 256 + c
         for j = 1, 4 do
             --tmp = num >> ((4 -j) * 6)
-            local tmp = math.floor(num / (2 ^ ((4 - j) * 6)))
+            local tmp = math.floor(num / (2 ^ ((4-j) * 6)))
             --curPos = tmp&0x3f
             local curPos = tmp % 64 + 1
             res[index] = ZZBase64.__code[curPos]
@@ -2538,13 +2541,13 @@ function ZZBase64.__left2(res, index, text, len)
     res[index + 3] = "="
 end
 
-function ZZBase64.__left1(res, index, text, len)
+function ZZBase64.__left1(res, index,text, len)
     local num = string.byte(text, len + 1)
     num = num * 16
 
     local tmp = math.floor(num / 64)
     local curPos = tmp % 64 + 1
-    res[index] = ZZBase64.__code[curPos]
+    res[index ] = ZZBase64.__code[curPos]
 
     curPos = num % 64 + 1
     res[index + 1] = ZZBase64.__code[curPos]
@@ -2567,11 +2570,11 @@ function ZZBase64.decode(text)
     local res = {}
     local index = 1
     local decode = ZZBase64.__decode
-    for i = 1, len, 4 do
-        local a = decode[string.byte(text, i)]
-        local b = decode[string.byte(text, i + 1)]
-        local c = decode[string.byte(text, i + 2)]
-        local d = decode[string.byte(text, i + 3)]
+    for i =1, len, 4 do
+        local a = decode[string.byte(text,i    )] 
+        local b = decode[string.byte(text,i + 1)] 
+        local c = decode[string.byte(text,i + 2)] 
+        local d = decode[string.byte(text,i + 3)]
 
         --num = a<<18 + b<<12 + c<<6 + d
         local num = a * 262144 + b * 4096 + c * 64 + d
@@ -2580,7 +2583,7 @@ function ZZBase64.decode(text)
         num = math.floor(num / 256)
         local f = string.char(num % 256)
         num = math.floor(num / 256)
-        res[index] = string.char(num % 256)
+        res[index ] = string.char(num % 256)
         res[index + 1] = f
         res[index + 2] = e
         index = index + 3
@@ -2615,5 +2618,8 @@ function ZZBase64.__decodeLeft2(res, index, text, len)
     num = math.floor(num / 16)
     res[index] = string.char(num)
 end
+
+
+
 
 return StartDebug

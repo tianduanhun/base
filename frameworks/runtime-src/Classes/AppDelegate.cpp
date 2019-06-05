@@ -12,9 +12,6 @@
 #include "luabinding/cocos2dx_extra_ios_iap_luabinding.h"
 #endif
 
-//pbc
-#include "pbc/pbc-lua.h"
-
 
 USING_NS_CC;
 using namespace std;
@@ -34,11 +31,6 @@ static void quick_module_register(lua_State *L)
 #endif
     }
     lua_pop(L, 1);
-}
-
-static void custom_module_register(lua_State* L)
-{
-	luaopen_protobuf_c(L);
 }
 
 //
@@ -105,7 +97,7 @@ bool AppDelegate::applicationDidFinishLaunching()
         string title = "base";
         glview = cocos2d::GLViewImpl::create(title.c_str());
         director->setOpenGLView(glview);
-		director->startAnimation();
+        director->startAnimation();
     }
    
     auto engine = LuaEngine::getInstance();
@@ -115,9 +107,6 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     // use Quick-Cocos2d-X
     quick_module_register(L);
-
-	// use Custom module
-	custom_module_register(L);
     
     // resource decode, include game.zip
     //FileUtils::getInstance()->setFileDataDecoder(decoder);

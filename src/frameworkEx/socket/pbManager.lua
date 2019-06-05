@@ -1,4 +1,4 @@
-require("protobuf")
+local pb = _require("pb")
 
 local PbManager = {}
 
@@ -20,7 +20,7 @@ local function _getProto(msgType, pbkey)
             if string.isEmpty(data) then
                 error("load .pb file failed :" .. config.pb)
             end
-            protobuf.register(data)
+            pb.load(data)
             PbManager.pbFile[config.pb] = true
         end
         return config.pkg .. "." .. config[msgType]
@@ -30,18 +30,21 @@ end
 function PbManager.register(config)
     config = checktable(config)
     for k, v in pairs(config) do
+        if PbManager.config[k] then
+            error("The configured key value already exists : " .. k)
+        end
         PbManager.config[k] = v
     end
 end
 
 function PbManager.encode(pbKey, data)
     local proto = _getProto(PbManager.msgType.request, pbKey)
-    return protobuf.encode(proto, data)
+    return pb.encode(proto, data)
 end
 
 function PbManager.decode(pbKey, data)
     local proto = _getProto(PbManager.msgType.response, pbKey)
-    return protobuf.decode(proto, data)
+    return pb.decode(proto, data)
 end
 
 

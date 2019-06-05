@@ -8,6 +8,8 @@ function HallView:getCtrClass()
 end
 
 function HallView:onEnter()
+    local pb = _require("pb")
+    dump(pb)
 end
 
 function HallView:onDestroy()

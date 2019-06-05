@@ -694,7 +694,8 @@ local LuaDebugger = {
 	runLineCount = 0,
 	--分割字符串缓存
 	splitFilePaths = {},
-	version="0.9.0"
+    version="0.9.3",
+    serVarLevel = 4
 }
 local debug_hook = nil
 local _resume = coroutine.resume
@@ -1002,17 +1003,24 @@ end
 --@endregion
 local function debugger_valueToString(v)
     local vtype = type(v)
-  
     local vstr = nil
     if (vtype == "userdata") then
-        if (tolua and tolua.isnull and tolua.isnull(v)) then
-            return "userdata(null)",vtype
+        if (LuaDebugger.isFoxGloryProject ) then
+           
+            return "userdata",vtype
+        
         else
             return tostring(v), vtype
         end
     elseif (vtype == "table" or vtype == "function" or vtype == "boolean") then
-        return tostring(v), vtype
-    elseif (vtype == "number" ) then
+        local value = vtype
+        xpcall(function() 
+            value = tostring(v)
+        end,function()
+            value = vtype
+        end)
+        return value, vtype
+    elseif (vtype == "number" or vtype == "string" ) then
         return v, vtype
     else
         return tostring(v), vtype
@@ -1021,7 +1029,9 @@ end
 local function debugger_setVarInfo(name, value)
     local valueStr, valueType = debugger_valueToString(value)
     local nameStr,nameType = debugger_valueToString(name)
-    
+    if(valueStr == nil) then
+        valueStr = valueType
+    end
     local valueInfo = {
         name =nameStr,
         valueType = valueType,
@@ -1560,15 +1570,15 @@ local function debugger_GeVarInfoBytUserData(server, var)
 	local fileds = LuaDebugTool.getUserDataInfo(var)
 	
 	local varInfos = {}
-	if (tolua and tolua.getpeer) then
-		local luavars = tolua.getpeer(var)
-		if (luavars) then
-			for k, v in pairs(luavars) do
-				local vinfo = debugger_setVarInfo(k, v)
-				table.insert(varInfos, vinfo)
-			end			
-		end
-	end
+	-- if (tolua and tolua.getpeer) then
+	-- 	local luavars = tolua.getpeer(var)
+	-- 	if (luavars) then
+	-- 		for k, v in pairs(luavars) do
+	-- 			local vinfo = debugger_setVarInfo(k, v)
+	-- 			table.insert(varInfos, vinfo)
+	-- 		end			
+	-- 	end
+	-- end
 	
 	--c# vars
 	for i = 1, fileds.Count do
@@ -1805,7 +1815,6 @@ local function debugger_sendTableField(luatable, vinfos, server, variablesRefere
         return vinfos
     end
     for k, v in pairs(luatable) do
-
         local vinfo = debugger_setVarInfo(k, v)
         table.insert(vinfos, vinfo)
         if (#vinfos > 10) then
@@ -1831,9 +1840,10 @@ local function debugger_sendTableValues(value, server, variablesReference, debug
     local valueType = type(value)
     local userDataInfos = {}
     local m = nil
+    
     if (valueType == "userdata") then
+        m = getmetatable(value)
         if (tolua and tolua.getpeer) then
-            m = getmetatable(value)
             vinfos = debugger_sendTableField(value, vinfos, server, variablesReference, debugSpeedIndex, valueType)
         end
         if (LuaDebugTool) then
@@ -1864,7 +1874,7 @@ local function debugger_sendTableValues(value, server, variablesReference, debug
                     vinfos = {}
                 end
             end
-            m = getmetatable(value)
+           
         end
     else
         m = getmetatable(value)
@@ -1895,7 +1905,6 @@ local function debugger_getBreakVar(body, server)
 		local frameId = body.frameId
         local type_ = body.type
         local keys = body.keys
-		
 		--找到对应的var
 		local vars = nil
 		if (type_ == 1) then
@@ -1910,12 +1919,12 @@ local function debugger_getBreakVar(body, server)
 		if (#keys == 0) then
 			debugger_sendTableValues(vars, server, variablesReference, debugSpeedIndex)
 			return
-		end
+		end 
 		local index, value = debugger_searchVarByKeys(vars, keys, keys)
 		if (value) then
 			local valueType = type(value)
             if (valueType == "table" or valueType == "userdata") then
-            LuaDebugger.istabvar = true
+                
 				debugger_sendTableValues(value, server, variablesReference, debugSpeedIndex)
 			else
 				if (valueType == "function") then
