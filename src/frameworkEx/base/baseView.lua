@@ -3,7 +3,6 @@ local BaseView = class("BaseView", function()
 end)
 
 function BaseView:ctor(...)
-    self:setNodeEventEnabled(true)
     self:_init()
     self:bindCtr()
     self:onCreate(...)
@@ -15,6 +14,11 @@ function BaseView:onCreate(...)
 end
 
 function BaseView:_init()
+    self:setNodeEventEnabled(true)
+    self:setCascadeOpacityEnabled(true)
+    self:setContentSize(display.size)
+    self:setAnchorPoint(0.5, 0.5)
+    self:setPosition(display.cx, display.cy)
     g_BehaviorExtend(self)
 end
 
@@ -48,6 +52,24 @@ function BaseView:_handler(methodName, ...)
     if methodName and self[methodName] then
         self[methodName](self, ...)
     end
+end
+
+function BaseView:enterAction()
+    self:setOpacity(0)
+    self:setScale(0.8)
+    self:runAction(cc.Spawn:create(
+        cc.FadeIn:create(0.1),
+        cc.EaseBackInOut:create(cc.ScaleTo:create(0.1, 1))
+    ))
+end
+
+function BaseView:exitAction()
+    self:runAction(cc.Spawn:create(
+            cc.FadeOut:create(0.1),
+            cc.EaseBackInOut:create(cc.ScaleTo:create(0.1, 0.8))
+        )
+    )
+    return 0.1
 end
 
 return BaseView

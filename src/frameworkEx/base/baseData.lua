@@ -12,6 +12,9 @@ function BaseData:destroy()
     self.instance = nil
 end
 -------------------------------------------
+BaseData.registerEvents = {}
+BaseData.exportFuncs = {}
+
 function BaseData:ctor(...)
     self:_init()
     self:onCreate(...)
@@ -23,9 +26,12 @@ end
 
 function BaseData:_init()
     g_BehaviorExtend(self)
+    self:bindBehavior(g_BehaviorMap.eventBehavior)
+    self:registerEvent()
 end
 
 function BaseData:onCleanup()
+    self:unRegisterEvent()
     self:unBindAllBehavior()
     self:onDestroy()
 end

@@ -2,8 +2,7 @@ local EventBehavior = class("EventBehavior", g_BehaviorBase)
 
 EventBehavior.exportFuncs = {
     "registerEvent",
-    "unRegisterEvent",
-    "doMethod"
+    "unRegisterEvent"
 }
 
 function EventBehavior:registerEvent(object)

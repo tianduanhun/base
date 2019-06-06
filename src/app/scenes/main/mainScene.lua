@@ -16,10 +16,10 @@ function MainScene:ctor()
 end
 
 function MainScene:onCreate()
-    self._ViewLayer = cc.Node:create():addTo(self, self.ZorderConfig.VIEW)
-    self._PopupLayer = cc.Node:create():addTo(self, self.ZorderConfig.POPUP)
-    self._AniLayer = cc.Node:create():addTo(self, self.ZorderConfig.ANIMATE)
-    self._ToastLayer = cc.Node:create():addTo(self, self.ZorderConfig.TOAST)
+    self._ViewLayer = cc.Node:create():addTo(self, self.ZorderConfig.VIEW)      --界面层
+    self._PopupLayer = cc.Node:create():addTo(self, self.ZorderConfig.POPUP)    --弹窗层
+    self._AniLayer = cc.Node:create():addTo(self, self.ZorderConfig.ANIMATE)    --动画层
+    self._ToastLayer = cc.Node:create():addTo(self, self.ZorderConfig.TOAST)    --提示层
     self.viewsInfo = {}
     self.toasts = {}
 end

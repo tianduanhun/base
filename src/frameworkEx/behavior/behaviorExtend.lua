@@ -26,8 +26,9 @@ BehaviorExtend = function(object)
         if self.behaviorObjects_ == nil then
             return
         end
-        for k, behaviorObject in pairs(self.behaviorObjects_) do
+        for behaviorName, behaviorObject in pairs(self.behaviorObjects_) do
             behaviorObject:unBind(self)
+            self.behaviorObjects_[behaviorName] = nil
         end
         self.behaviorObjects_ = {}
     end
