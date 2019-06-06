@@ -17,7 +17,7 @@ function BaseData:ctor(...)
     self:onCreate(...)
 end
 
--- Overwrite Me
+-- Override Me
 function BaseData:onCreate(...)
 end
 
@@ -30,7 +30,7 @@ function BaseData:onCleanup()
     self:onDestroy()
 end
 
--- Overwrite Me
+-- Override Me
 function BaseData:onDestroy()
 end
 

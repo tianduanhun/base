@@ -9,8 +9,9 @@ function BaseView:ctor(...)
     self:onCreate(...)
 end
 
--- Overwrite Me
+-- Override Me
 function BaseView:onCreate(...)
+    error("Must override the onCreate method")
 end
 
 function BaseView:_init()
@@ -24,13 +25,13 @@ function BaseView:onCleanup()
     self:onDestroy()
 end
 
--- Overwrite Me
+-- Override Me
 function BaseView:onDestroy()
 end
 
--- Overwrite Me
 function BaseView:getCtrClass()
-    return g_BaseCtr
+    local env = getfenv(self.onCreate)
+    return env.require(string.lowerFirst(string.gsub(self.__cname, "View", "Ctr")))
 end
 
 function BaseView:bindCtr()
@@ -38,12 +39,12 @@ function BaseView:bindCtr()
 end
 
 function BaseView:doLogic(methodName, ...)
-    if self._Ctr and self._Ctr.haldler then
-        return self._Ctr:haldler(methodName, ...)
+    if self._Ctr and self._Ctr._handler then
+        return self._Ctr:_haldler(methodName, ...)
     end
 end
 
-function BaseView:handler(methodName, ...)
+function BaseView:_handler(methodName, ...)
     if methodName and self[methodName] then
         self[methodName](self, ...)
     end

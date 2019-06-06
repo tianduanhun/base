@@ -9,7 +9,7 @@ function BaseCtr:ctor(_UI, ...)
     self:onCreate(...)
 end
 
--- Overwrite Me
+-- Override Me
 function BaseCtr:onCreate(...)
 end
 
@@ -26,19 +26,19 @@ function BaseCtr:onCleanup()
     self:onDestroy()
 end
 
--- Overwrite Me
+-- Override Me
 function BaseCtr:onDestroy()
 end
 
-function BaseCtr:handler(methodName, ...)
+function BaseCtr:_handler(methodName, ...)
     if methodName and self[methodName] then
         self[methodName](self, ...)
     end
 end
 
 function BaseCtr:doView(methodName, ...)
-    if self._UI and self._UI.haldler then
-        return self._UI:haldler(methodName, ...)
+    if self._UI and self._UI._handler then
+        return self._UI:_handler(methodName, ...)
     end
 end
 

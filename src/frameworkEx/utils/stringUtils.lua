@@ -66,7 +66,7 @@ end
     @return:
 ]]
 function string.lowerFirst(input)
-    return string.lower(string.sub(str, 1, 1)) .. string.sub(str, 2, -1)
+    return string.lower(string.sub(input, 1, 1)) .. string.sub(input, 2, -1)
 end
 
 --[[

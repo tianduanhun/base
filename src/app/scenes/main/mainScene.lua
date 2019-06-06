@@ -30,7 +30,6 @@ end
 
 function MainScene:onCleanup()
     self:unBindAllBehavior()
-    self:onDestroy()
 end
 
 function MainScene:pushScene(scene)
