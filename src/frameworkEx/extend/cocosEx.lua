@@ -52,8 +52,12 @@ end
 ---------------------------------------------------------------------Shader Start
 local function getRealNodes(node, tb)
     local nodeType = tolua.type(node)
-    if nodeType == "cc.Sprite" or nodeType == "ccui.Scale9Sprite" then
+    if nodeType == "cc.Sprite" then
         table.insert(tb, node)
+    elseif nodeType == "ccui.Scale9Sprite" then
+        getRealNodes(node:getSprite(), tb)
+    elseif nodeType == "ccui.Text" then
+        getRealNodes(node:getVirtualRenderer(), tb)
     elseif nodeType == "ccui.Button" then
         getRealNodes(node:getVirtualRenderer(), tb)
         getRealNodes(node:getTitleRenderer(), tb)
@@ -62,8 +66,8 @@ local function getRealNodes(node, tb)
         getRealNodes(node:getChildren()[1], tb)
     elseif nodeType == "cc.RenderTexture" then
         getRealNodes(node:getSprite(), tb)
-    elseif string.find(nodeType, "ccui") then
-        getRealNodes(node:getVirtualRenderer(), tb)
+    else
+        table.insert(tb, node)
     end
 end
 

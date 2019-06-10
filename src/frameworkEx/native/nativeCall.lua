@@ -22,8 +22,6 @@ local signConfig = {
 local className = "top.bogeys.export.ExportFunc"
 -- result:返回数据类型, default:默认返回值, param:参数对应字段和类型
 local config = {
-    getUUID = {result = "string", default = ""}, --获取UUID
-    saveUUID = {param = {"uuid:string"}} --保存UUID
 }
 
 local function getSign(method)
