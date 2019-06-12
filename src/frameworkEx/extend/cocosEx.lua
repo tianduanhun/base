@@ -16,7 +16,7 @@ function cc.Node:align(anchorPoint, x, y)
 end
 
 --[[
-    @desc: size的现加
+    @desc: size的相加
     author:BogeyRuan
     time:2019-05-28 11:33:40
     --@size: 基础size
@@ -33,7 +33,7 @@ function cc.sizeAdd(size, width, height)
 end
 
 --[[
-    @desc: size的现减
+    @desc: size的相减
     author:BogeyRuan
     time:2019-05-28 11:34:43
     --@size: 基础size
@@ -47,6 +47,38 @@ function cc.sizeSub(size, width, height)
         width = width.width
     end
     return cc.size(size.width - width, size.height - height)
+end
+
+--[[
+    @desc: size的缩放
+    author:BogeyRuan
+    time:2019-06-11 17:32:00
+    --@size:
+	--@factor: 
+    @return:
+]]
+function cc.sizeMul(size, factor)
+    return {width = size.width * factor, height = size.height * factor}    
+end
+
+--[[
+    @desc: 
+    author:BogeyRuan
+    time:2019-06-11 15:09:12
+    --@_x: x或者pos
+	--@_y: y或者size
+	--@_width: width或者size
+	--@_height: height
+    @return:
+]]
+function cc.rect(_x, _y, _width, _height)
+    if _height then
+        return {x = _x, y = _y, width = _width, height = _height}
+    elseif type(_width) == "table" then
+        return {x = _x, y = _y, width = _width.width, height = _width.height}
+    elseif type(_y) == "table" then
+        return {x = _x.x, y = _x.y, width = _y.width, height = _y.height}
+    end
 end
 
 ---------------------------------------------------------------------Shader Start
@@ -142,16 +174,26 @@ function display.makeNormal(node)
 end
 
 --[[
-    @desc: 截取一张模糊的当前场景的节点
+    @desc: 截取一张指定节点指定位置的模糊截图
     author:BogeyRuan
     time:2019-05-21 15:56:15
+    --@[node]: 指定的节点
+    --@[rect]: 截取的范围，坐标系为世界坐标
     @return: 
 ]]
-function display.captureBlurScene()
-    local scene = display.getRunningScene()
-    local texture = cc.RenderTexture:create(display.width, display.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
+function display.captureBlurNode(node, rect)
+    local node = node or display.getRunningScene()
+    local nodeSize = node:getContentSize()
+    local pos = node:convertToWorldSpace(cc.p(0, 0))
+    if rect then
+        nodeSize = cc.size(rect.width, rect.height)
+        pos = cc.p(rect.x, rect.y)
+    end
+    local texture = cc.RenderTexture:create(nodeSize.width, nodeSize.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
+    texture:setKeepMatrix(true)
+    texture:setVirtualViewport(pos, cc.rect(0, 0, display.size), cc.rect(0, 0, cc.sizeMul(display.size, cc.Director:getInstance():getContentScaleFactor())))
     texture:beginWithClear(0, 0, 0, 0)
-    scene:visit()
+    node:visit()
     texture:endToLua()
 
     texture:pos(0, 0)
