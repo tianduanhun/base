@@ -23,7 +23,10 @@ function import(path)
     local result = importModules[path]
     if not result then
         local env = {}
+
         env.PKGPATH = path .. "/"
+        env.PKGRESPATH = path .. "/res/"
+
         local function require(path)
             path = string.gsub(path, "%.", "/")
             path = env.PKGPATH .. path

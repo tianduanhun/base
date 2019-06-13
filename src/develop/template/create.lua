@@ -16,6 +16,7 @@ local function create()
         -- 目录结构
         local modDir = "../../app/views/" .. string.lower(params.modName) .. "/"
         io.mkdir(modDir)
+        io.mkdir(modDir .. "res/")
 
         -- 基础文件
         local baseConfig = {
@@ -30,6 +31,8 @@ local function create()
                 content = string.gsub(content, "Template", modName)
                 content = string.gsub(content, "template", fileName)
                 io.writefile(file, content)
+            else
+                print(table.concat("[Warning][views]:'", file, "' exists"))
             end
         end
     end
@@ -51,6 +54,8 @@ local function create()
                 content = string.gsub(content, "Template", modName)
                 content = string.gsub(content, "template", fileName)
                 io.writefile(file, content)
+            else
+                print(table.concat("[Warning][data]:'", file, "' exists"))
             end
         end
     end
