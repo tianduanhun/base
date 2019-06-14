@@ -1,4 +1,4 @@
-local M = {}
+local g_Db = {}
 local sqlite3 = _require("lsqlite3")
 if not sqlite3 then
     return
@@ -8,7 +8,7 @@ local dbDir = device.writablePath .. "files/db/"
 local dbName = "db"
 local database
 
-M.dataType = {
+g_Db.dataType = {
     INT = "INTEGER", --整型
     TEXT = "TEXT", --文本
     REAL = "REAL", --浮点
@@ -16,17 +16,17 @@ M.dataType = {
     NUM = "NUMERIC" --时间，布尔
 }
 
-M.modType = {
+g_Db.modType = {
     PRIKEY = "PRIMARY KEY", --主键
     AUTO = "AUTOINCREMENT" --自增
 }
 
-M.orderType = {
+g_Db.orderType = {
     ASC = "ASC", --正序
     DESC = "DESC" --倒序
 }
 
-function M.open()
+function g_Db.open()
     if database then
         return database
     end
@@ -35,7 +35,7 @@ function M.open()
     return database
 end
 
-function M.close()
+function g_Db.close()
     if database then
         local status = database:close()
         database = nil
@@ -54,7 +54,7 @@ end
 	--@udata: 自定义数据，在回调参数中使用
     @return:
 ]]
-function M.exec(sql, func, udata)
+function g_Db.exec(sql, func, udata)
     if database then
         return database:exec(sql, func, udata) == sqlite3.OK
     end
@@ -79,10 +79,10 @@ end
     g_Db.create("user", params)
     g_Db.close()
 ]]
-function M.create(tableName, params, isNew)
+function g_Db.create(tableName, params, isNew)
     if database then
         if isNew then
-            M.exec("DROP TABLE IF EXISTS " .. tableName)
+            g_Db.exec("DROP TABLE IF EXISTS " .. tableName)
         end
         local sql = "CREATE TABLE IF NOT EXISTS " .. tableName .. "("
         for i, v in ipairs(params) do
@@ -93,7 +93,7 @@ function M.create(tableName, params, isNew)
             end
         end
         sql = sql .. ")"
-        return M.exec(sql)
+        return g_Db.exec(sql)
     end
     return false
 end
@@ -130,7 +130,7 @@ end
         }
     }
 ]]
-function M.query(tableName, where, order, limit)
+function g_Db.query(tableName, where, order, limit)
     if database then
         local sql = "SELECT * FROM " .. tableName
         if where then
@@ -149,7 +149,7 @@ function M.query(tableName, where, order, limit)
         if order then
             local con = " ORDER BY "
             local key = '"' .. order[1] .. '"'
-            local seq = order[2] or M.orderType.ASC
+            local seq = order[2] or g_Db.orderType.ASC
             con = con .. key .. " " .. seq
             sql = sql .. con
         end
@@ -183,7 +183,7 @@ end
     g_Db.insert("user", {id = 7, name = "a"})
     g_Db.close()
 ]]
-function M.insert(tableName, data)
+function g_Db.insert(tableName, data)
     if database then
         local sql = "INSERT INTO " .. tableName
         local keys = ""
@@ -200,7 +200,7 @@ function M.insert(tableName, data)
             index = index + 1
         end
         sql = sql .. " (" .. keys .. ") VALUES (" .. values .. ")"
-        return M.exec(sql)
+        return g_Db.exec(sql)
     end
     return false
 end
@@ -218,7 +218,7 @@ end
     g_Db.update("user", {{"id", 1}}, {name = "aa"})
     g_Db.close()
 ]]
-function M.update(tableName, where, data)
+function g_Db.update(tableName, where, data)
     if database then
         local sql = "UPDATE " .. tableName .. " SET "
         for k, v in pairs(data) do
@@ -238,7 +238,7 @@ function M.update(tableName, where, data)
             end
             sql = sql .. con
         end
-        return M.exec(sql)
+        return g_Db.exec(sql)
     end
     return false
 end
@@ -256,7 +256,7 @@ end
     g_Db.repalce("user", {id = 8, name = "b"})
     g_Db.close()
 ]]
-function M.repalce(tableName, data)
+function g_Db.repalce(tableName, data)
     if database then
         local sql = "REPLACE INTO " .. tableName
         local keys = ""
@@ -273,7 +273,7 @@ function M.repalce(tableName, data)
             index = index + 1
         end
         sql = sql .. " (" .. keys .. ") VALUES (" .. values .. ")"
-        return M.exec(sql)
+        return g_Db.exec(sql)
     end
     return false
 end
@@ -290,7 +290,7 @@ end
     g_Db.delete("user", {{"id", 1}})
     g_Db.close()
 ]]
-function M.delete(tableName, where)
+function g_Db.delete(tableName, where)
     if database then
         local sql = "DELETE FROM " .. tableName
         if where then
@@ -306,9 +306,9 @@ function M.delete(tableName, where)
             end
             sql = sql .. con
         end
-        return M.exec(sql)
+        return g_Db.exec(sql)
     end
     return false
 end
 
-return M
+return g_Db

@@ -1,4 +1,4 @@
-local M = {}
+local g_FileUtils = {}
 
 local FileUtils = cc.FileUtils:getInstance()
 --[[
@@ -8,7 +8,7 @@ local FileUtils = cc.FileUtils:getInstance()
     --@dir: 
     @return:
 ]]
-function M.isDirExist(dir)
+function g_FileUtils.isDirExist(dir)
     return FileUtils:isDirectoryExist(dir)
 end
 
@@ -19,7 +19,7 @@ end
     --@dir: 
     @return:
 ]]
-function M.createDir(dir)
+function g_FileUtils.createDir(dir)
     FileUtils:createDirectory(dir)
 end
 
@@ -30,9 +30,9 @@ end
     --@dir: 
     @return:
 ]]
-function M.checkDir(dir)
-    if not M.isDirExist(dir) then
-        M.createDir(dir)
+function g_FileUtils.checkDir(dir)
+    if not g_FileUtils.isDirExist(dir) then
+        g_FileUtils.createDir(dir)
     end
 end
 
@@ -43,7 +43,7 @@ end
     --@dir: 
     @return:
 ]]
-function M.isFileExist(path)
+function g_FileUtils.isFileExist(path)
     return FileUtils:isFileExist(path)
 end
 
@@ -54,8 +54,8 @@ end
     --@path: 
     @return:
 ]]
-function M.getFileContent(path)
-    if M.isFileExist(path) then
+function g_FileUtils.getFileContent(path)
+    if g_FileUtils.isFileExist(path) then
         return FileUtils:getDataFromFile(path)
     end
 end
@@ -67,8 +67,8 @@ end
     --@path: 
     @return:
 ]]
-function M.getFullPath(path)
+function g_FileUtils.getFullPath(path)
     return FileUtils:fullPathForFilename(path)
 end
 
-return M
+return g_FileUtils

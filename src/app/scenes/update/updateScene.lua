@@ -31,7 +31,8 @@ end
 
 function UpdateScene:enterGame()
     require("frameworkEx.init")
-    g_AppExtend.AppBaseExtend.new():run()
+    require("app.common.init")
+    g_AppBaseExtend.new():run("hall")
 end
 
 function UpdateScene:onCleanup()

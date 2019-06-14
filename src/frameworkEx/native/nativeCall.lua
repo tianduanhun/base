@@ -1,4 +1,4 @@
-local NativeCall = {}
+local g_NativeCall = {}
 
 local callStaticMethod
 local platform = cc.Application:getInstance():getTargetPlatform()
@@ -61,7 +61,7 @@ local function checkParams(method, params)
     end
 end
 
-function NativeCall.callSystem(method, params)
+function g_NativeCall.callSystem(method, params)
     assert(method and config[method], "method is not exist : " .. method)
     checkParams(method, params)
     params = checktable(params)
@@ -74,4 +74,4 @@ function NativeCall.callSystem(method, params)
     end
 end
 
-return NativeCall
+return g_NativeCall

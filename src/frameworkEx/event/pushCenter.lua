@@ -1,10 +1,10 @@
-local center = {}
-center._listeners = {}
+local g_PushCenter = {}
+g_PushCenter._listeners = {}
 
 -- eventName:string, func:function, tag:anything
-function center.addListener(eventName, func, tag)
+function g_PushCenter.addListener(eventName, func, tag)
 	assert(tag, "Tag must not be nil")
-	local listeners = center._listeners
+	local listeners = g_PushCenter._listeners
 	if not listeners[eventName] then
 		listeners[eventName] = {}
 	end
@@ -20,8 +20,8 @@ function center.addListener(eventName, func, tag)
 	table.insert(eventListeners, {func, tag})
 end
 
-function center.removeListener(func)
-	local listeners = center._listeners
+function g_PushCenter.removeListener(func)
+	local listeners = g_PushCenter._listeners
 	for eventName, eventListeners in pairs(listeners) do
 		for i = 1, #eventListeners do
 			if eventListeners[i][1] == func then
@@ -37,9 +37,9 @@ function center.removeListener(func)
 	end
 end
 
-function center.removeListenerByNameAndTag(eventName, tag)
+function g_PushCenter.removeListenerByNameAndTag(eventName, tag)
 	assert(tag, "Tag must not be nil")
-	local listeners = center._listeners
+	local listeners = g_PushCenter._listeners
 	local eventListeners = listeners[eventName]
 	if not eventListeners then return end
 
@@ -56,20 +56,20 @@ function center.removeListenerByNameAndTag(eventName, tag)
 	end
 end
 
-function center.removeListenersByTag(tag)
+function g_PushCenter.removeListenersByTag(tag)
 	assert(tag, "Tag must not be nil")
-	local listeners = center._listeners
+	local listeners = g_PushCenter._listeners
 	for eventName, eventListeners in pairs(listeners) do
-		center.removeListenerByNameAndTag(eventName, tag)
+		g_PushCenter.removeListenerByNameAndTag(eventName, tag)
 	end
 end
 
-function center.removeAllListeners()
-	center._listeners = {}
+function g_PushCenter.removeAllListeners()
+	g_PushCenter._listeners = {}
 end
 
-function center.pushEvent(eventName, ...)
-	local listeners = center._listeners
+function g_PushCenter.pushEvent(eventName, ...)
+	local listeners = g_PushCenter._listeners
 	local eventListeners = listeners[eventName]
 	if not eventListeners then
 		return
@@ -86,4 +86,4 @@ function center.pushEvent(eventName, ...)
 	end
 end
 
-return center
+return g_PushCenter

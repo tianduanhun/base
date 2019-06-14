@@ -148,7 +148,7 @@ function display.makeGray(node)
     for _, node in pairs(nodes) do
         local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
         if not glProgram then
-            glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
+            glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
             cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
         end
         local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)

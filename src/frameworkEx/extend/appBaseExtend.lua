@@ -1,6 +1,6 @@
 local AppBase = _require("framework.AppBase")
 local scheduler = _require("framework.scheduler")
-local MainScene = _require("app.scenes.main.mainScene")
+local MainScene = require("mainScene")
 local AppBaseExtend = class("AppBaseExtend", AppBase)
 
 function AppBaseExtend:enterScene(viewName, ...)
@@ -26,7 +26,7 @@ function AppBaseExtend:pushToast(str)
     self._BaseScene:pushToast(str)
 end
 
-function AppBaseExtend:run()
+function AppBaseExtend:run(viewName)
     local scene = MainScene.new()
     display.replaceScene(scene)
     self._BaseScene = scene
@@ -35,7 +35,7 @@ function AppBaseExtend:run()
 
     -- 必须延迟一帧加载
     scheduler.performWithDelayGlobal(function()
-        self:enterScene("hall")
+        self:enterScene(viewName)
     end, 0)
 end
 
