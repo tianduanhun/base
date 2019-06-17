@@ -82,7 +82,9 @@ end
 function g_Db.create(tableName, params, isNew)
     if database then
         if isNew then
-            g_Db.exec("DROP TABLE IF EXISTS " .. tableName)
+            if not g_Db.exec("DROP TABLE IF EXISTS " .. tableName) then
+                return false
+            end
         end
         local sql = "CREATE TABLE IF NOT EXISTS " .. tableName .. "("
         for i, v in ipairs(params) do
