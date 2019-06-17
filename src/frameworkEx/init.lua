@@ -77,12 +77,11 @@ function unimport(path)
             table.insert(temp, key)
         end
     end
-    table.sort(
-        temp,
-        function(a, b)
-            return string.len(a) < string.len(b)
-        end
-    )
+    
+    table.sort(temp, function(a, b)
+        return string.len(a) < string.len(b)
+    end)
+
     for i, v in ipairs(temp) do
         if importModules[v]._DESTROY and type(importModules[v]._DESTROY) == "function" then
             importModules[v]._DESTROY()

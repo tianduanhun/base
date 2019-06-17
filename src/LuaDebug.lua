@@ -1598,15 +1598,7 @@ local function debugger_GeVarInfoBytUserData(server, var)
     local fileds = LuaDebugTool.getUserDataInfo(var)
 
     local varInfos = {}
-    -- if (tolua and tolua.getpeer) then
-    --     local luavars = tolua.getpeer(var)
-    --     if (luavars) then
-    --         for k, v in pairs(luavars) do
-    --             local vinfo = debugger_setVarInfo(k, v)
-    --             table.insert(varInfos, vinfo)
-    --         end
-    --     end
-    -- end
+ 
 
     --c# vars
     for i = 1, fileds.Count do
@@ -1871,9 +1863,9 @@ local function debugger_sendTableValues(value, server, variablesReference, debug
 
     if (valueType == "userdata") then
         m = getmetatable(value)
-        if (tolua and tolua.getpeer) then      
-            vinfos = debugger_sendTableField(value, vinfos, server, variablesReference, debugSpeedIndex, valueType)
-        end
+       
+        vinfos = debugger_sendTableField(value, vinfos, server, variablesReference, debugSpeedIndex, valueType)
+      
         if (LuaDebugTool) then
             local varInfos = debugger_GeVarInfoBytUserData(server, value, variablesReference, debugSpeedIndex)
 

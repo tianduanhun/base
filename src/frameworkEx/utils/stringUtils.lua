@@ -14,40 +14,6 @@ function string.isEmpty(str)
 end
 
 --[[
-    @desc: 用指定字符或字符串分割输入字符串，返回包含分割结果的数组
-    author:BogeyRuan
-    time:2019-03-27 17:42:02
-    --@input:
-	--@delimiter: 
-    @return:
-]]
-function string.split(input, delimiter)
-    input = tostring(input)
-    delimiter = tostring(delimiter)
-    if (delimiter=='') then return false end
-    local pos,arr = 0, {}
-    -- for each divider found
-    for st,sp in function() return string.find(input, delimiter, pos, true) end do
-        table.insert(arr, string.sub(input, pos, st - 1))
-        pos = sp + 1
-    end
-    table.insert(arr, string.sub(input, pos))
-    return arr
-end
-
---[[
-    @desc: 去掉字符串首尾的空白字符，返回结果
-    author:BogeyRuan
-    time:2019-03-27 17:42:36
-    --@input: 
-    @return:
-]]
-function string.trim(input)
-    input = string.gsub(input, "^[ \t\n\r]+", "")
-    return string.gsub(input, "[ \t\n\r]+$", "")
-end
-
---[[
     @desc: 将字符串的第一个字符转为大写，返回结果
     author:BogeyRuan
     time:2019-03-27 17:43:03
@@ -70,58 +36,70 @@ function string.lowerFirst(input)
 end
 
 --[[
-    @desc: 将数值格式化为包含千分位分隔符的字符串
+    @desc: 根据传入的成对的字符串拆分文字
     author:BogeyRuan
-    time:2019-03-27 17:43:38
-    --@num: 
-    @return:
+    time:2019-06-17 11:04:07
+    --@str: 要拆分的文字
+	--@config: 成对的字符串集合，如{"#*", "()"}
+    @return: 返回拆出来的文字，并附加文字被包含的索引,普通文字索引为配置数加1
+    @example: string.splitByConfig("ab#cde*fg", {"#*"})
+    @result: {{text = "ab", index = 2}, {text = "cde", index = 1}, {text = "fg", index = 2}}
 ]]
-function string.formatnumberthousands(num)
-    local formatted = tostring(checknumber(num))
-    local k
+function string.splitByConfig(str, config)
+    local configNum = #config
+    local strTemp = {}
+    local indexs = {}   --所有特殊字符下标合集
+    local index = 1
     while true do
-        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-        if k == 0 then break end
-    end
-    return formatted
-end
-
---[[
-    @desc: 计算 UTF8 字符串的长度，每一个中文算一个字符
-    author:BogeyRuan
-    time:2019-03-27 17:44:10
-    --@input: 
-    @return:
-]]
-function string.utf8len(input)
-    local left = string.len(input)
-    local cnt  = 0
-    local arr  = {0, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc}
-    while left > 0 do
-        local tmp = string.byte(input, -left)
-        local i   = #arr
-        while arr[i] do
-            if tmp >= arr[i] then
-                left = left - i
-                break
+        local flag = true
+        local realHead, realEnd, indexInConfig
+        for i,v in ipairs(config) do
+            local tempHead, tempEnd = string.find(str, string.format("%%b%s", v), index)
+            if tempHead then
+                flag = false
+                if (not realHead) or realHead > tempHead then
+                    realHead, realEnd, indexInConfig = tempHead, tempEnd, i
+                end
             end
-            i = i - 1
         end
-        cnt = cnt + 1
+        if flag then
+            break
+        else
+            index = realEnd + 1
+            table.insert(indexs, {i = realHead, j = realEnd, index = indexInConfig})
+        end
     end
-    return cnt
-end
 
---[[
-    @desc: 将 URL 中的特殊字符还原，并返回结果
-    author:BogeyRuan
-    time:2019-03-27 17:45:26
-    --@input: 
-    @return:
-]]
-function string.urldecode(input)
-    input = string.gsub (input, "+", " ")
-    input = string.gsub (input, "%%(%x%x)", function(h) return string.char(checknumber(h,16)) end)
-    input = string.gsub (input, "\r\n", "\n")
-    return input
+    if table.isEmpty(indexs) then
+        return {{text = str, index = configNum + 1}}
+    end
+
+    for i,v in ipairs(indexs) do
+        local info = indexs[i - 1]
+        local lastIndex
+        if info then
+            lastIndex = info.j + 1
+        else
+            lastIndex = 1
+        end
+
+        local normalStr = string.sub(str, lastIndex, v.i - 1)
+        if normalStr and not string.isEmpty(normalStr) then
+            table.insert(strTemp, {text = normalStr, index = configNum + 1})
+        end
+
+        local specialStr = string.sub(str, v.i, v.j)
+        specialStr = string.sub(specialStr, 2, -2)
+        if specialStr and not string.isEmpty(specialStr) then
+            table.insert(strTemp, {text = specialStr, index = v.index})
+        end
+    end
+
+    local lastIndex = indexs[#indexs].j + 1
+    local normalStr = string.sub(str, lastIndex)
+    if normalStr and not string.isEmpty(normalStr) then
+        table.insert(strTemp, {text = normalStr, index = configNum + 1})
+    end
+    
+    return strTemp
 end
