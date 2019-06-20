@@ -156,10 +156,7 @@ function MainScene:_showToast()
         cc.CallFunc:create(function()
             local text = ccui.Text:create()
             text:setString(str)
-            text:setFontName(g_CommonResPath.fonts .. "XianEr.ttf")
-            text:setFontSize(26)
-            text:enableOutline(cc.c4b(255,0,0,255),2)
-            display.makeGray(text)
+            text:setFontSize(28)
             text:addTo(self._ToastLayer):align(display.CENTER, display.cx, display.height / 3 * 2 + 50)
             text:runAction(cc.Sequence:create(
                 cc.MoveTo:create(1.5, cc.p(display.cx, display.height / 3 * 2 - 50)),

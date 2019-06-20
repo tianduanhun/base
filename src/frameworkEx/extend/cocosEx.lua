@@ -94,13 +94,7 @@ local function getRealNodes(node, tb)
         getRealNodes(node:getVirtualRenderer(), tb)
         getRealNodes(node:getTitleRenderer(), tb)
     elseif nodeType == "cc.Label" then
-        node:updateContent()    --先刷新内部精灵
-        local sp = node:getChildren()[1]
-        if sp then
-            getRealNodes(sp, tb)
-        else
-            table.insert(tb, node)
-        end
+        table.insert(tb, node)
     elseif nodeType == "cc.RenderTexture" then
         getRealNodes(node:getSprite(), tb)
     else
@@ -121,22 +115,24 @@ function display.makeBlur(node, radius, resolution)
     local nodes = {}
     getRealNodes(node, nodes)
     for _, node in pairs(nodes) do
-        if resolution == nil then
-            local size = node:getContentSize()
-            if size.width == 0 or size.height == 0 then
-                return
+        if tolua.type(node) ~= "cc.Label" then
+            if resolution == nil then
+                local size = node:getContentSize()
+                if size.width == 0 or size.height == 0 then
+                    return
+                end
+                resolution = cc.p(size.width, size.height)
             end
-            resolution = cc.p(size.width, size.height)
+            if radius == nil then
+                radius = 10
+            end
+        
+            local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
+            local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+            glProgramState:setUniformVec2("resolution" , resolution)
+            glProgramState:setUniformFloat("blurRadius", radius)
+            node:setGLProgramState(glProgramState)
         end
-        if radius == nil then
-            radius = 10
-        end
-    
-        local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
-        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-        glProgramState:setUniformVec2("resolution" , resolution)
-        glProgramState:setUniformFloat("blurRadius", radius)
-        node:setGLProgramState(glProgramState)
     end
 end
 
@@ -151,13 +147,17 @@ function display.makeGray(node)
     local nodes = {}
     getRealNodes(node, nodes)
     for _, node in pairs(nodes) do
-        local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
-        if not glProgram then
-            glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
-            cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
+        if tolua.type(node) == "cc.Label" then
+            node:setGray()
+        else
+            local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
+            if not glProgram then
+                glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/Gray"))
+                cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
+            end
+            local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+            node:setGLProgramState(glProgramState)
         end
-        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-        node:setGLProgramState(glProgramState)
     end
 end
 
@@ -172,9 +172,13 @@ function display.makeNormal(node)
     local nodes = {}
     getRealNodes(node, nodes)
     for _, node in pairs(nodes) do
-        local glProgram = cc.GLProgramCache:getInstance():getGLProgram("ShaderPositionTextureColor_noMVP")
-        local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-        node:setGLProgramState(glProgramState)
+        if tolua.type(node) == "cc.Label" then
+            node:setNormal()
+        else
+            local glProgram = cc.GLProgramCache:getInstance():getGLProgram("ShaderPositionTextureColor_noMVP")
+            local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+            node:setGLProgramState(glProgramState)
+        end
     end
 end
 
