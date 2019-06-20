@@ -4,6 +4,7 @@ function HallView:onCreate(...)
 end
 
 function HallView:onEnter()
+    app:pushToast("123abc测试文字")
 end
 
 function HallView:onDestroy()

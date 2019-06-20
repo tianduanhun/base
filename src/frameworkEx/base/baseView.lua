@@ -16,9 +16,7 @@ end
 function BaseView:_init()
     self:setNodeEventEnabled(true)
     self:setCascadeOpacityEnabled(true)
-    self:setContentSize(display.size)
-    self:setAnchorPoint(0.5, 0.5)
-    self:setPosition(display.cx, display.cy)
+    self:align(display.CENTER, display.cx, display.cy):size(display.size)
     g_BehaviorExtend(self)
 end
 

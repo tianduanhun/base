@@ -152,9 +152,21 @@ function MainScene:_showToast()
     end
     self.isShowing = true
     self:runAction(cc.Sequence:create(
-        cc.DelayTime:create(1),
+        cc.DelayTime:create(0.5),
         cc.CallFunc:create(function()
-            print(str)
+            local text = ccui.Text:create()
+            text:setString(str)
+            text:setFontName(g_CommonResPath.fonts .. "XianEr.ttf")
+            text:setFontSize(26)
+            text:enableOutline(cc.c4b(255,0,0,255),2)
+            display.makeGray(text)
+            text:addTo(self._ToastLayer):align(display.CENTER, display.cx, display.height / 3 * 2 + 50)
+            text:runAction(cc.Sequence:create(
+                cc.MoveTo:create(1.5, cc.p(display.cx, display.height / 3 * 2 - 50)),
+                cc.CallFunc:create(function ()
+                    text:removeFromParent(true)
+                end)
+            ))
             self.isShowing = false
             self:_showToast()
         end)
@@ -165,9 +177,9 @@ function MainScene:pushToast(toast)
     if not toast or string.trim(toast) == "" then
         return
     end
-    if self.toasts[#self.toasts] == toast then  --短时间内压入相同toast，相同的被忽略
-        return
-    end
+    -- if self.toasts[#self.toasts] == toast then  --短时间内压入相同toast，相同的被忽略
+    --     return
+    -- end
     table.insert(self.toasts, toast)
     self:_showToast()
 end

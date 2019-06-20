@@ -95,7 +95,12 @@ local function getRealNodes(node, tb)
         getRealNodes(node:getTitleRenderer(), tb)
     elseif nodeType == "cc.Label" then
         node:updateContent()    --先刷新内部精灵
-        getRealNodes(node:getChildren()[1], tb)
+        local sp = node:getChildren()[1]
+        if sp then
+            getRealNodes(sp, tb)
+        else
+            table.insert(tb, node)
+        end
     elseif nodeType == "cc.RenderTexture" then
         getRealNodes(node:getSprite(), tb)
     else
