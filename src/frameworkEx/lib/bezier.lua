@@ -16,6 +16,14 @@ local function point(x, y)
     return {x = x, y = y}
 end
 
+--[[
+    @desc: 根据控制点返回贝塞尔曲线
+    author:BogeyRuan
+    time:2019-06-21 11:57:36
+    --@points: 控制点
+	--@segments: 采样，越大越平滑
+    @return:
+]]
 local function bezier(points, segments)
     local pointNum = #points
     local nums = YangHuiR3(pointNum)

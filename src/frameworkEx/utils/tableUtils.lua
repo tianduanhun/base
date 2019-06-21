@@ -49,3 +49,39 @@ function table.pairsByKey(tb)
         return temp[i], tb[temp[i]]
     end
 end
+
+--[[
+    @desc: 返回表内最大的值
+    author:BogeyRuan
+    time:2019-06-21 12:18:22
+    --@tb: 
+    @return:
+]]
+function table.max(tb)
+    local max
+    for k,v in pairs(tb) do
+        local value = checknumber(v)
+        if not max or max < value then
+            max = value
+        end
+    end
+    return max
+end
+
+--[[
+    @desc: 返回表内最小的值
+    author:BogeyRuan
+    time:2019-06-21 12:18:40
+    --@tb: 
+    @return:
+]]
+function table.min(tb)
+    local min
+    for k,v in pairs(tb) do
+        local value = checknumber(v)
+        if not min or min > value then
+            min = value
+        end
+    end
+    return min
+end
