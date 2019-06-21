@@ -1,3 +1,4 @@
+
 function cc.Node:pos(x, y)
     if not y and type(x) == "table" then
         y = x.y
@@ -16,13 +17,35 @@ function cc.Node:align(anchorPoint, x, y)
 end
 
 --[[
+    @desc: 给节点绑定触摸事件
+    author:BogeyRuan
+    time:2019-06-21 16:30:42
+    --@func: 回调方法
+    @return:
+]]
+function cc.Node:onTouch(func)
+    self:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
+        if event.name == "began" then
+            local result = func(event)
+            if type(result) ~= "boolean" then
+                result = true
+            end
+            return result
+        else
+            func(event)
+        end
+    end)
+    self:setTouchEnabled(true)
+end
+
+--[[
     @desc: size的相加
     author:BogeyRuan
     time:2019-05-28 11:33:40
     --@size: 基础size
 	--@width: 增加的宽或者增加的size
 	--@height: 增加的高
-    @return:
+    @return: [luaIde#cc.Size]
 ]]
 function cc.sizeAdd(size, width, height)
     if type(width) == "table" then
@@ -39,7 +62,7 @@ end
     --@size: 基础size
 	--@width: 减少的宽或者减少的size
 	--@height: 减少的高
-    @return:
+    @return: [luaIde#cc.Size]
 ]]
 function cc.sizeSub(size, width, height)
     if type(width) == "table" then
@@ -55,7 +78,7 @@ end
     time:2019-06-11 17:32:00
     --@size:
 	--@factor: 
-    @return:
+    @return: [luaIde#cc.Size]
 ]]
 function cc.sizeMul(size, factor)
     return {width = size.width * factor, height = size.height * factor}    
@@ -69,7 +92,7 @@ end
 	--@_y: y或者size
 	--@_width: width或者size
 	--@_height: height
-    @return:
+    @return: [luaIde#cc.Rect]
 ]]
 function cc.rect(_x, _y, _width, _height)
     if _height then
@@ -188,7 +211,7 @@ end
     time:2019-05-21 15:56:15
     --@[node]: 指定的节点
     --@[rect]: 截取的范围，坐标系为世界坐标
-    @return: 
+    @return: [luaIde#cc.RenderTexture]
 ]]
 function display.captureBlurNode(node, rect)
     local node = node or display.getRunningScene()
