@@ -121,7 +121,12 @@ bool AppDelegate::applicationDidFinishLaunching()
     stack->executeString("require 'main'");
 #else // #if 0
     // use discrete files
-    engine->executeScriptFile("src/main.lua");
+#if defined(__aarch64__) || defined(__arm64__)
+	engine->executeScriptFile("src/main64.lua");
+#else
+	engine->executeScriptFile("src/main32.lua");
+	//engine->executeScriptFile("src/main.lua");
+#endif
 #endif
 
     return true;

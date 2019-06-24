@@ -53,6 +53,6 @@ def getMD5(root):
 
 getMD5(scanRoot)
 jsonStr = json.dumps(info)
-fp = open(joinDir(scanRoot, output), "wb")
+fp = open(joinDir(scanRoot + "/..", output), "wb")
 fp.write(jsonStr)
 fp.close()

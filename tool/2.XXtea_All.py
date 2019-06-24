@@ -135,23 +135,19 @@ def copyDir(src, dest, encodeSign, encodeKey):
 
 def encodeRes(projectDir, encodeSign, encodeKey):
     print "====> Checking dir."
-    srcPath = joinDir(projectDir, "src")
-    srcBKPath = joinDir(projectDir, "src_bk")
-    if os.path.exists(srcBKPath):
-        print "Error, src has encodered!!"
+    srcPath = joinDir(projectDir, "src_jit")
+    xtSrcPath = joinDir(projectDir, "src_xt")
+    if not os.path.exists(srcPath):
+        print "Error: %s is not exists" %(srcPath)
         sys.exit(-2)
-    
+
+    if os.path.exists(xtSrcPath):
+        shutil.rmtree(xtSrcPath)
+    os.mkdir(xtSrcPath)
+
     print "====> Start encoding src."
-    # 1. backup src, removd src
-    
-    shutil.copytree(srcPath, srcBKPath)
-    shutil.rmtree(srcPath)
-    os.mkdir(srcPath)
-    
-    # 2. work backup dir, encode bin file.
-    copyDir(srcBKPath, srcPath, encodeSign, encodeKey)
-    print "====> old src:%s." %(srcBKPath)
-    print "====> encodered src:%s" %(srcPath)
+    copyDir(srcPath, xtSrcPath, encodeSign, encodeKey)
+    print "====> encodered src:%s" %(xtSrcPath)
     print "====> Done."
 
 if __name__ == "__main__":

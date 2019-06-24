@@ -19,6 +19,8 @@
 
 /files
 /src/.vscode
+/src_jit
+/src_xt
 
 UserDefault.xml
 debug.log
