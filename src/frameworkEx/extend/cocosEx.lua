@@ -31,6 +31,8 @@ function cc.Node:onTouch(func)
                 result = true
             end
             return result
+        elseif event.name == "ended" then
+            
         else
             func(event)
         end

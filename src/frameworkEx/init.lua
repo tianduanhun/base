@@ -16,7 +16,7 @@ end
 local function loadLuaScript(path)
     path = string.gsub(path, "%.", "/")
     local fullPath
-    if USEBYTECODE then
+    if USE_BYTECODE then
         fullPath = FileUtils:fullPathForFilename(path .. ".lua" .. cpu)
     else
         fullPath = FileUtils:fullPathForFilename(path .. ".lua")

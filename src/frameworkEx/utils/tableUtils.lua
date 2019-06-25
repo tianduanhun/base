@@ -44,7 +44,7 @@ function table.pairsByKey(tb)
     end
     table.sort(temp)
     local i = 0
-    return function ( )
+    return function ()
         i = i + 1
         return temp[i], tb[temp[i]]
     end
@@ -84,4 +84,25 @@ function table.min(tb)
         end
     end
     return min
+end
+
+--[[
+    @desc: 返回表里的最大最小值
+    author:BogeyRuan
+    time:2019-06-25 16:16:22
+    --@tb: 
+    @return:
+]]
+function table.maxMin(tb)
+    local max, min
+    for k,v in pairs(tb) do
+        local value = checknumber(v)
+        if not max or max < value then
+            max = value
+        end
+        if not min or min > value then
+            min = value
+        end
+    end
+    return max, min
 end

@@ -9,7 +9,6 @@ SYNOPSIS
 
     -h show help
     -p project root dir
-    -o output file name, like "game", will auto composed to game32.zip
     -b 32 or 64, luajit bytecode mode
 """
 
@@ -87,6 +86,12 @@ def packageScript(projectDir, mode):
     if not os.path.exists(luaRoot):
         print "Error: %s is not exists" %(luaRoot)
         sys.exit(-2)
+
+    srcBKPath = joinDir(projectDir, "src_bk")
+    if os.path.exists(srcBKPath):
+        shutil.rmtree(srcBKPath)
+    #os.mkdir(srcBKPath)
+    shutil.copytree(luaRoot, srcBKPath)
 
     jitSrcPath = joinDir(projectDir, "src_jit")
     if not os.path.exists(jitSrcPath):

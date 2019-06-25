@@ -3,7 +3,7 @@
 DEBUG = 2
 
 -- display FPS stats on screen
-DEBUG_FPS = true
+DEBUG_FPS = DEBUG > 0
 
 -- dump memory info every 10 seconds
 DEBUG_MEM = false
@@ -16,4 +16,4 @@ CONFIG_SCREEN_HEIGHT = 1280
 CONFIG_SCREEN_AUTOSCALE = "FIXED_AUTO"
 
 -- use bytecode
-USEBYTECODE = false
+USE_BYTECODE = DEBUG == 0
