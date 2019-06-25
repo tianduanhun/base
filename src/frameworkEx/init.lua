@@ -8,9 +8,19 @@ local importModules = {}
 local FileUtils = cc.FileUtils:getInstance()
 FileUtils:addSearchPath("src/")
 
+local cpu = "32"
+if jit and jit.arch == "arm64" then
+	cpu = "64"
+end
+
 local function loadLuaScript(path)
     path = string.gsub(path, "%.", "/")
-    local fullPath = FileUtils:fullPathForFilename(path .. ".lua")
+    local fullPath
+    if USEBYTECODE then
+        fullPath = FileUtils:fullPathForFilename(path .. ".lua" .. cpu)
+    else
+        fullPath = FileUtils:fullPathForFilename(path .. ".lua")
+    end
     if FileUtils:isFileExist(fullPath) then
         local data = FileUtils:getDataFromFile(fullPath)
         return loadstring(data, fullPath)
