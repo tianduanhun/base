@@ -17,7 +17,7 @@ function cc.Node:align(anchorPoint, x, y)
 end
 
 --[[
-    @desc: 给节点绑定触摸事件
+    @desc: 给节点绑定单点触摸事件
     author:BogeyRuan
     time:2019-06-21 16:30:42
     --@func: 回调方法
@@ -32,7 +32,13 @@ function cc.Node:onTouch(func)
             end
             return result
         elseif event.name == "ended" then
-            
+            if not self:hitTest(cc.p(event.x, event.y)) then
+                event.name = "cancelled"
+            end
+            if math.abs(event.x - event.startX) <= display.width / 100 or math.abs(event.y - event.startX) <= display.width / 100 then
+                event.isClick = true
+            end
+            func(event)
         else
             func(event)
         end
@@ -79,11 +85,12 @@ end
     author:BogeyRuan
     time:2019-06-11 17:32:00
     --@size:
-	--@factor: 
+	--@xFactor: x轴缩放或整体缩放
+	--@[yFactor]: y轴缩放
     @return: [luaIde#cc.Size]
 ]]
-function cc.sizeMul(size, factor)
-    return {width = size.width * factor, height = size.height * factor}    
+function cc.sizeMul(size, xFactor, yFactor)
+    return {width = size.width * xFactor, height = size.height * (yFactor or xFactor)}  
 end
 
 --[[
@@ -92,8 +99,8 @@ end
     time:2019-06-11 15:09:12
     --@_x: x或者pos
 	--@_y: y或者size
-	--@_width: width或者size
-	--@_height: height
+	--@[_width]: width或者size
+	--@[_height]: height
     @return: [luaIde#cc.Rect]
 ]]
 function cc.rect(_x, _y, _width, _height)
@@ -107,23 +114,42 @@ function cc.rect(_x, _y, _width, _height)
 end
 
 ---------------------------------------------------------------------Shader Start
-local function getRealNodes(node, tb)
-    local nodeType = tolua.type(node)
-    if nodeType == "cc.Sprite" then
-        table.insert(tb, node)
-    elseif nodeType == "ccui.Scale9Sprite" then
-        getRealNodes(node:getSprite(), tb)
-    elseif nodeType == "ccui.Text" then
-        getRealNodes(node:getVirtualRenderer(), tb)
-    elseif nodeType == "ccui.Button" then
-        getRealNodes(node:getVirtualRenderer(), tb)
-        getRealNodes(node:getTitleRenderer(), tb)
-    elseif nodeType == "cc.Label" then
-        table.insert(tb, node)
-    elseif nodeType == "cc.RenderTexture" then
-        getRealNodes(node:getSprite(), tb)
+--[[
+    @desc: 获取渲染节点，主要是cc.Sprite 和 cc.Label
+    author:BogeyRuan
+    time:2019-06-26 11:12:16
+    --@node:
+    --@tb: 
+    --@cascadeChildren: 是否级联子节点
+    @return:
+]]
+local function getRealNodes(node, tb, cascadeChildren)
+    if not cascadeChildren then
+        local nodeType = tolua.type(node)
+        if nodeType == "cc.Sprite" then
+            table.insert(tb, node)
+        elseif nodeType == "ccui.Scale9Sprite" then
+            getRealNodes(node:getSprite(), tb)
+        elseif nodeType == "ccui.Text" then
+            getRealNodes(node:getVirtualRenderer(), tb)
+        elseif nodeType == "ccui.Button" then
+            getRealNodes(node:getVirtualRenderer(), tb)
+            getRealNodes(node:getTitleRenderer(), tb)
+        elseif nodeType == "cc.Label" then
+            if node:getString() ~= "" then
+                table.insert(tb, node)
+            end
+        elseif nodeType == "cc.RenderTexture" then
+            getRealNodes(node:getSprite(), tb)
+        else
+            table.insert(tb, node)
+        end
     else
-        table.insert(tb, node)
+        getRealNodes(node, tb)
+        local children = node:getChildren()
+        for k,v in pairs(children) do
+            getRealNodes(v, tb, cascadeChildren)
+        end
     end
 end
 
@@ -132,15 +158,20 @@ end
     author:BogeyRuan
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
+    --@cascadeChildren: 是否级联子节点
 	--@[radius]: 模糊半径，默认10，半径越大效率越低
 	--@[resolution]: 采样粒度，大多数时间不用传
     @return:
 ]]
-function display.makeBlur(node, radius, resolution)
+function display.makeBlur(node, cascadeChildren, radius, resolution)
     local nodes = {}
-    getRealNodes(node, nodes)
+    getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
-        if tolua.type(node) ~= "cc.Label" then
+        if tolua.type(node) == "cc.Label" then
+            local displayNode = display.captureBlurNode(node)
+            displayNode:getSprite():align(display.BOTTOM_LEFT, 0, 0)
+            node:setDisplayNode(displayNode)
+        else
             if resolution == nil then
                 local size = node:getContentSize()
                 if size.width == 0 or size.height == 0 then
@@ -152,7 +183,7 @@ function display.makeBlur(node, radius, resolution)
                 radius = 10
             end
         
-            local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
+            local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
             local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
             glProgramState:setUniformVec2("resolution" , resolution)
             glProgramState:setUniformFloat("blurRadius", radius)
@@ -166,11 +197,12 @@ end
     author:BogeyRuan
     time:2019-05-15 16:19:26
     --@node: 
+    --@cascadeChildren: 是否级联子节点
     @return:
 ]]
-function display.makeGray(node)
+function display.makeGray(node, cascadeChildren)
     local nodes = {}
-    getRealNodes(node, nodes)
+    getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
             node:setGray()
@@ -191,11 +223,12 @@ end
     author:BogeyRuan
     time:2019-05-15 15:32:53
     --@node: 
+    --@cascadeChildren: 是否级联子节点
     @return:
 ]]
-function display.makeNormal(node)
+function display.makeNormal(node, cascadeChildren)
     local nodes = {}
-    getRealNodes(node, nodes)
+    getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
             node:setNormal()
@@ -212,23 +245,40 @@ end
     author:BogeyRuan
     time:2019-05-21 15:56:15
     --@[node]: 指定的节点
-    --@[rect]: 截取的范围，坐标系为世界坐标
+    --@[rect]: 截取的范围，节点坐标
     @return: [luaIde#cc.RenderTexture]
 ]]
 function display.captureBlurNode(node, rect)
     local node = node or display.getRunningScene()
+    -- 因为截取指定区域的函数的限制，得先把父节点和自己移动到左下角
+    local parent = node:getParent()
+    local parentPos
+    if parent then
+        parentPos = cc.p(parent:getPosition())
+        local basePos = parent:convertToWorldSpace(cc.p(0, 0))
+        parent:setPosition(cc.pSub(parentPos, basePos))
+    end
+    local nodePos = cc.p(node:getPosition())
     local nodeSize = node:getContentSize()
+    local nodeAnchor = node:getAnchorPoint()
+    node:setPosition(nodeAnchor.x * nodeSize.width, nodeAnchor.y * nodeSize.height)
+
     local pos = node:convertToWorldSpace(cc.p(0, 0))
     if rect then
         nodeSize = cc.size(rect.width, rect.height)
-        pos = cc.p(rect.x, rect.y)
+        pos = cc.pAdd(cc.p(rect.x, rect.y), nodePos)
     end
     local texture = cc.RenderTexture:create(nodeSize.width, nodeSize.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
-    texture:setKeepMatrix(true)
-    texture:setVirtualViewport(pos, cc.rect(0, 0, display.size), cc.rect(0, 0, cc.sizeMul(display.size, cc.Director:getInstance():getContentScaleFactor())))
+    -- texture:setKeepMatrix(true)
+    -- texture:setVirtualViewport(pos, cc.rect(0, 0, display.size), cc.rect(0, 0, cc.sizeMul(display.size, cc.Director:getInstance():getContentScaleFactor())))
     texture:beginWithClear(0, 0, 0, 0)
     node:visit()
     texture:endToLua()
+
+    if parent then
+        parent:setPosition(parentPos)
+    end
+    node:setPosition(nodePos)
 
     texture:pos(0, 0)
     local blurSp = texture:getSprite()
