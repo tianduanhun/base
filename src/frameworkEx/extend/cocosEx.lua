@@ -35,7 +35,7 @@ function cc.Node:onTouch(func)
             if not self:hitTest(cc.p(event.x, event.y)) then
                 event.name = "cancelled"
             end
-            if math.abs(event.x - event.startX) <= display.width / 100 or math.abs(event.y - event.startX) <= display.width / 100 then
+            if math.abs(event.x - event.startX) <= display.width / 100 and math.abs(event.y - event.startY) <= display.width / 100 then
                 event.isClick = true
             end
             func(event)
@@ -129,7 +129,8 @@ local function getRealNodes(node, tb, cascadeChildren)
         if nodeType == "cc.Sprite" then
             table.insert(tb, node)
         elseif nodeType == "ccui.Scale9Sprite" then
-            getRealNodes(node:getSprite(), tb)
+            -- getRealNodes(node:getSprite(), tb)
+            table.insert(tb, node)
         elseif nodeType == "ccui.Text" then
             getRealNodes(node:getVirtualRenderer(), tb)
         elseif nodeType == "ccui.Button" then
@@ -159,34 +160,23 @@ end
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
     --@cascadeChildren: 是否级联子节点
-	--@[radius]: 模糊半径，默认10，半径越大效率越低
-	--@[resolution]: 采样粒度，大多数时间不用传
     @return:
 ]]
-function display.makeBlur(node, cascadeChildren, radius, resolution)
+function display.makeBlur(node, cascadeChildren)
     local nodes = {}
     getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
-            local displayNode = display.captureBlurNode(node)
-            displayNode:getSprite():align(display.BOTTOM_LEFT, 0, 0)
-            node:setDisplayNode(displayNode)
+            node:setDisplayNode(display.captureBlurNode(node))
         else
-            if resolution == nil then
-                local size = node:getContentSize()
-                if size.width == 0 or size.height == 0 then
-                    return
-                end
-                resolution = cc.p(size.width, size.height)
+            local size = node:getContentSize()
+            if size.width == 0 or size.height == 0 then
+                size = cc.size(1, 1)
             end
-            if radius == nil then
-                radius = 10
-            end
-        
+            local resolution = cc.p(size.width, size.height)
             local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
             local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
             glProgramState:setUniformVec2("resolution" , resolution)
-            glProgramState:setUniformFloat("blurRadius", radius)
             node:setGLProgramState(glProgramState)
         end
     end
@@ -245,10 +235,9 @@ end
     author:BogeyRuan
     time:2019-05-21 15:56:15
     --@[node]: 指定的节点
-    --@[rect]: 截取的范围，节点坐标
     @return: [luaIde#cc.RenderTexture]
 ]]
-function display.captureBlurNode(node, rect)
+function display.captureBlurNode(node, size)
     local node = node or display.getRunningScene()
     -- 因为截取指定区域的函数的限制，得先把父节点和自己移动到左下角
     local parent = node:getParent()
@@ -261,16 +250,10 @@ function display.captureBlurNode(node, rect)
     local nodePos = cc.p(node:getPosition())
     local nodeSize = node:getContentSize()
     local nodeAnchor = node:getAnchorPoint()
-    node:setPosition(nodeAnchor.x * nodeSize.width, nodeAnchor.y * nodeSize.height)
+    node:setPosition(nodeAnchor.x * nodeSize.width + 10, nodeAnchor.y * nodeSize.height + 10)
+    nodeSize = size or nodeSize
 
-    local pos = node:convertToWorldSpace(cc.p(0, 0))
-    if rect then
-        nodeSize = cc.size(rect.width, rect.height)
-        pos = cc.pAdd(cc.p(rect.x, rect.y), nodePos)
-    end
-    local texture = cc.RenderTexture:create(nodeSize.width, nodeSize.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
-    -- texture:setKeepMatrix(true)
-    -- texture:setVirtualViewport(pos, cc.rect(0, 0, display.size), cc.rect(0, 0, cc.sizeMul(display.size, cc.Director:getInstance():getContentScaleFactor())))
+    local texture = cc.RenderTexture:create(nodeSize.width + 20, nodeSize.height + 20, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
     texture:beginWithClear(0, 0, 0, 0)
     node:visit()
     texture:endToLua()
@@ -290,6 +273,7 @@ function display.captureBlurNode(node, rect)
     texture2:beginWithClear(0, 0, 0, 0)
     blurSp:visit()
     texture2:endToLua()
+    texture2:getSprite():align(display.BOTTOM_LEFT, -10, -10)
 
     return texture2
 end
