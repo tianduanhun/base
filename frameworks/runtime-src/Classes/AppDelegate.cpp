@@ -10,6 +10,11 @@
 #include "luabinding/cocos2dx_extra_luabinding.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include "luabinding/cocos2dx_extra_ios_iap_luabinding.h"
+#include "CrashReport.h"
+#include "BuglyLuaAgent.h"
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "bugly/CrashReport.h"
+#include "bugly/BuglyLuaAgent.h"
 #endif
 
 
@@ -90,6 +95,10 @@ static void decoder(Data &data)
 
 bool AppDelegate::applicationDidFinishLaunching()
 {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	CrashReport::initCrashReport("7c28cae000", true);
+#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();    
@@ -107,6 +116,11 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     // use Quick-Cocos2d-X
     quick_module_register(L);
+
+	// use Bugly
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	BuglyLuaAgent::registerLuaExceptionHandler(engine);
+#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     
     // resource decode, include game.zip
     //FileUtils::getInstance()->setFileDataDecoder(decoder);

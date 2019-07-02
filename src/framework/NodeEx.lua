@@ -272,7 +272,7 @@ function Node:setTouchEnabled(enable)
 				x = tp.x,
 				y = tp.y,
 				startX = sp.x,
-				stratY = sp.y,
+				startY = sp.y,
 				prevX = pp.x,
 				prevY = pp.y,
 			})
@@ -301,7 +301,7 @@ function Node:setTouchEnabled(enable)
 					x = tp.x,
 					y = tp.y,
 					startX = sp.x,
-					stratY = sp.y,
+					startY = sp.y,
 					prevX = pp.x,
 					prevY = pp.y,
 				}
