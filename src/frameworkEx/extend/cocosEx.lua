@@ -195,7 +195,9 @@ function display.makeGray(node, cascadeChildren)
     getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
-            node:setGray()
+            local displayNode = display.captureNode(node)
+            display.makeGray(displayNode)
+            node:setDisplayNode(displayNode)
         else
             local glProgram = cc.GLProgramCache:getInstance():getGLProgram("Gray")
             if not glProgram then
@@ -221,7 +223,7 @@ function display.makeNormal(node, cascadeChildren)
     getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
-            node:setNormal()
+            node:setDisplayNode()
         else
             local glProgram = cc.GLProgramCache:getInstance():getGLProgram("ShaderPositionTextureColor_noMVP")
             local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
@@ -231,13 +233,14 @@ function display.makeNormal(node, cascadeChildren)
 end
 
 --[[
-    @desc: 截取一张指定节点指定位置的模糊截图
+    @desc: 截取指定节点
     author:BogeyRuan
-    time:2019-05-21 15:56:15
-    --@[node]: 指定的节点
+    time:2019-07-03 12:22:00
+    --@node:
+	--@size: 截取的大小
     @return: [luaIde#cc.RenderTexture]
 ]]
-function display.captureBlurNode(node, size)
+function display.captureNode(node, bigger, size)
     local node = node or display.getRunningScene()
     -- 因为截取指定区域的函数的限制，得先把父节点和自己移动到左下角
     local parent = node:getParent()
@@ -250,10 +253,16 @@ function display.captureBlurNode(node, size)
     local nodePos = cc.p(node:getPosition())
     local nodeSize = node:getContentSize()
     local nodeAnchor = node:getAnchorPoint()
-    node:setPosition(nodeAnchor.x * nodeSize.width + 10, nodeAnchor.y * nodeSize.height + 10)
+    node:setPosition(nodeAnchor.x * nodeSize.width, nodeAnchor.y * nodeSize.height)
     nodeSize = size or nodeSize
 
-    local texture = cc.RenderTexture:create(nodeSize.width + 20, nodeSize.height + 20, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
+    local texture
+    if bigger then
+        node:setPosition(nodeAnchor.x * nodeSize.width + 10, nodeAnchor.y * nodeSize.height + 10)
+        texture = cc.RenderTexture:create(nodeSize.width + 20, nodeSize.height + 20, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
+    else
+        texture = cc.RenderTexture:create(nodeSize.width, nodeSize.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
+    end
     texture:beginWithClear(0, 0, 0, 0)
     node:visit()
     texture:endToLua()
@@ -263,10 +272,23 @@ function display.captureBlurNode(node, size)
     end
     node:setPosition(nodePos)
 
+    texture:getSprite():align(display.BOTTOM_LEFT, 0, 0)
+    return texture
+end
+
+--[[
+    @desc: 截取一张指定节点指定位置的模糊截图
+    author:BogeyRuan
+    time:2019-05-21 15:56:15
+    --@[node]: 指定的节点
+    @return: [luaIde#cc.RenderTexture]
+]]
+function display.captureBlurNode(node, size)
+    local texture = display.captureNode(node, true, size)
     texture:pos(0, 0)
     local blurSp = texture:getSprite()
     local size = blurSp:getContentSize()
-    blurSp:align(display.CENTER, size.width / 2, size.height / 2)
+    blurSp:align(display.BOTTOM_LEFT, 0, 0)
     display.makeBlur(blurSp)
 
     local texture2 = cc.RenderTexture:create(size.width, size.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)

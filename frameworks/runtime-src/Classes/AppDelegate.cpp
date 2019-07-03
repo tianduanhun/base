@@ -96,7 +96,7 @@ static void decoder(Data &data)
 bool AppDelegate::applicationDidFinishLaunching()
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	CrashReport::initCrashReport("7c28cae000", true);
+	CrashReport::initCrashReport("7c28cae000", false);
 #endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
     // initialize director
