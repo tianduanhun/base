@@ -167,7 +167,10 @@ function display.makeBlur(node, cascadeChildren)
     getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
-            node:setDisplayNode(display.captureBlurNode(node))
+            local displayNode = display.captureNode(node, nil, true)
+            displayNode:getSprite():align(display.BOTTOM_LEFT, -10, -10)
+            display.makeBlur(displayNode)
+            node:setDisplayNode(displayNode)
         else
             local size = node:getContentSize()
             if size.width == 0 or size.height == 0 then
@@ -240,7 +243,7 @@ end
 	--@size: 截取的大小
     @return: [luaIde#cc.RenderTexture]
 ]]
-function display.captureNode(node, bigger, size)
+function display.captureNode(node, size, bigger)
     local node = node or display.getRunningScene()
     -- 因为截取指定区域的函数的限制，得先把父节点和自己移动到左下角
     local parent = node:getParent()
@@ -284,7 +287,7 @@ end
     @return: [luaIde#cc.RenderTexture]
 ]]
 function display.captureBlurNode(node, size)
-    local texture = display.captureNode(node, true, size)
+    local texture = display.captureNode(node, size, true)
     texture:pos(0, 0)
     local blurSp = texture:getSprite()
     local size = blurSp:getContentSize()
