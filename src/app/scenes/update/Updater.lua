@@ -10,10 +10,10 @@ local extTmpName = "UpdateTemp"
 local writablePath = FileUtils:getWritablePath() .. "files/"
 local extPath = writablePath .. extName .. "/"
 local extTmp = writablePath .. extTmpName .. "/"
--- local cpu = "32"
--- if jit.arch == "arm64" then
--- 	cpu = "64"
--- end
+local cpu = "32"
+if jit.arch == "arm64" then
+	cpu = "64"
+end
 
 -- ********** internal function ********
 local function copyFile(src, dest)
@@ -48,12 +48,12 @@ local function checkVersion(my, server)
 end
 
 local function isNeedDownload(name, md5)
-	-- check game packages is need for this device
-	-- if string.sub(name, #name - 3) == ".zip" then
-	-- 	if string.sub(name, #name - 5, #name - 4) ~= cpu then
-	-- 		return false
-	-- 	end
-    -- end
+	-- check game code files is need for this device
+	if string.sub(name, #name - 5, #name - 3) == ".lua" then
+		if string.sub(name, #name - 2) ~= cpu then
+			return false
+		end
+    end
     
 	-- check if downloaded
 	local path = extTmp .. name

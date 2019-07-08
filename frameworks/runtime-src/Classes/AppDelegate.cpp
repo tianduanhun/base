@@ -95,10 +95,6 @@ static void decoder(Data &data)
 
 bool AppDelegate::applicationDidFinishLaunching()
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	CrashReport::initCrashReport("7c28cae000", false);
-#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();    
@@ -119,8 +115,9 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 	// use Bugly
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	CrashReport::initCrashReport("7c28cae000", false);
 	BuglyLuaAgent::registerLuaExceptionHandler(engine);
-#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif
     
     // resource decode, include game.zip
     //FileUtils::getInstance()->setFileDataDecoder(decoder);

@@ -55,6 +55,7 @@ function MainScene:_showView()
 
         viewInfo.view:setLocalZOrder(i)
     end
+
     if topView then
         self._ViewLayer:setVisible(not topView.isFull)
     else
@@ -69,8 +70,8 @@ end
     --@view:
 	--@params: {
         priority: 优先级，默认为0
-        isKeep: 是否保持底部弹窗，默认false
-        isFull: 是否是全屏的界面，优化drawcall，默认false
+        isKeep: 是否保持底部弹窗，默认true
+        isFull: 是否是全屏的界面，优化drawcall
     }
     @return:
 ]]
@@ -78,6 +79,7 @@ function MainScene:pushView(view, params)
     assert(view, "View is nil")
     params = checktable(params)
     params.priority = params.priority or 0
+    params.isKeep = params.isKeep == nil and true or params.isKeep
 
     if view.enterAction and type(view.enterAction) == "function" then
         view:enterAction()

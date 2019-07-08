@@ -113,6 +113,28 @@ function cc.rect(_x, _y, _width, _height)
     end
 end
 
+--[[
+    @desc: size转为点
+    author:BogeyRuan
+    time:2019-07-03 14:14:28
+    --@size: 
+    @return:
+]]
+function cc.sizeToP(size)
+    return cc.p(size.width, size.height)
+end
+
+--[[
+    @desc: 点转为size
+    author:BogeyRuan
+    time:2019-07-03 14:14:47
+    --@p: 
+    @return: [luaIde#cc.Size]
+]]
+function cc.pToSize(p)
+    return cc.size(p.x, p.y)
+end
+
 ---------------------------------------------------------------------Shader Start
 --[[
     @desc: 获取渲染节点，主要是cc.Sprite 和 cc.Label
@@ -160,27 +182,30 @@ end
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
     --@cascadeChildren: 是否级联子节点
+    --@level: 模糊级别，尽量不要超过5
     @return:
 ]]
-function display.makeBlur(node, cascadeChildren)
+function display.makeBlur(node, cascadeChildren, level)
     local nodes = {}
     getRealNodes(node, nodes, cascadeChildren)
     for _, node in pairs(nodes) do
         if tolua.type(node) == "cc.Label" then
-            local displayNode = display.captureNode(node, nil, true)
+            local displayNode = display.captureNode(node, {bigger = 10})
             displayNode:getSprite():align(display.BOTTOM_LEFT, -10, -10)
             display.makeBlur(displayNode)
             node:setDisplayNode(displayNode)
         else
             local size = node:getContentSize()
-            if size.width == 0 or size.height == 0 then
-                size = cc.size(1, 1)
+            if size.width > 0 and size.height > 0 then
+                local resolution = cc.p(size.width, size.height)
+                level = level or 1
+                assert(level > 0, "level must be greater than zero")
+                local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
+                local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+                glProgramState:setUniformVec2("resolution" , resolution)
+                glProgramState:setUniformFloat("level", level)
+                node:setGLProgramState(glProgramState)
             end
-            local resolution = cc.p(size.width, size.height)
-            local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
-            local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
-            glProgramState:setUniformVec2("resolution" , resolution)
-            node:setGLProgramState(glProgramState)
         end
     end
 end
@@ -240,10 +265,15 @@ end
     author:BogeyRuan
     time:2019-07-03 12:22:00
     --@node:
-	--@size: 截取的大小
+	--@params: {
+        size: 截取的大小
+        bigger: 外扩宽度
+    }
     @return: [luaIde#cc.RenderTexture]
 ]]
-function display.captureNode(node, size, bigger)
+function display.captureNode(node, params)
+    params = checktable(params)
+    local bigger = params.bigger or 0
     local node = node or display.getRunningScene()
     -- 因为截取指定区域的函数的限制，得先把父节点和自己移动到左下角
     local parent = node:getParent()
@@ -255,17 +285,11 @@ function display.captureNode(node, size, bigger)
     end
     local nodePos = cc.p(node:getPosition())
     local nodeSize = node:getContentSize()
-    local nodeAnchor = node:getAnchorPoint()
-    node:setPosition(nodeAnchor.x * nodeSize.width, nodeAnchor.y * nodeSize.height)
-    nodeSize = size or nodeSize
+    local nodeBasePos = node:convertToWorldSpace(cc.p(0,0))
+    node:setPosition(nodePos.x - nodeBasePos.x + bigger, nodePos.y - nodeBasePos.y + bigger)
+    nodeSize = params.size or nodeSize
 
-    local texture
-    if bigger then
-        node:setPosition(nodeAnchor.x * nodeSize.width + 10, nodeAnchor.y * nodeSize.height + 10)
-        texture = cc.RenderTexture:create(nodeSize.width + 20, nodeSize.height + 20, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
-    else
-        texture = cc.RenderTexture:create(nodeSize.width, nodeSize.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
-    end
+    local texture = cc.RenderTexture:create(nodeSize.width + 2 * bigger, nodeSize.height + 2 * bigger, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
     texture:beginWithClear(0, 0, 0, 0)
     node:visit()
     texture:endToLua()
@@ -284,21 +308,28 @@ end
     author:BogeyRuan
     time:2019-05-21 15:56:15
     --@[node]: 指定的节点
+    --@[params]: {
+        size: 指定的范围，默认节点size
+        level: 模糊等级，默认1
+        bigger: 外扩范围， 默认10
+    }
     @return: [luaIde#cc.RenderTexture]
 ]]
-function display.captureBlurNode(node, size)
-    local texture = display.captureNode(node, size, true)
+function display.captureBlurNode(node, params)
+    params = checktable(params)
+    local bigger = params.bigger or 10
+    local texture = display.captureNode(node, {size = params.size, bigger = bigger})
     texture:pos(0, 0)
     local blurSp = texture:getSprite()
-    local size = blurSp:getContentSize()
     blurSp:align(display.BOTTOM_LEFT, 0, 0)
-    display.makeBlur(blurSp)
+    display.makeBlur(blurSp, false, params.level)
 
+    local size = blurSp:getContentSize()
     local texture2 = cc.RenderTexture:create(size.width, size.height, cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888, gl.DEPTH24_STENCIL8_OES)
     texture2:beginWithClear(0, 0, 0, 0)
     blurSp:visit()
     texture2:endToLua()
-    texture2:getSprite():align(display.BOTTOM_LEFT, -10, -10)
+    texture2:getSprite():align(display.BOTTOM_LEFT, -bigger, -bigger)
 
     return texture2
 end

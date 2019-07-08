@@ -56,15 +56,15 @@ function BaseView:enterAction()
     self:setOpacity(0)
     self:setScale(0.8)
     self:runAction(cc.Spawn:create(
-        cc.FadeIn:create(0.1),
-        cc.EaseBackInOut:create(cc.ScaleTo:create(0.1, 1))
+        cc.FadeIn:create(0.5),
+        cc.EaseBackInOut:create(cc.ScaleTo:create(0.5, 1))
     ))
 end
 
 function BaseView:exitAction()
     self:runAction(cc.Spawn:create(
-            cc.FadeOut:create(0.1),
-            cc.EaseBackInOut:create(cc.ScaleTo:create(0.1, 0.8))
+            cc.FadeOut:create(0.5),
+            cc.EaseBackInOut:create(cc.ScaleTo:create(0.5, 0.8))
         )
     )
     return 0.1
