@@ -106,3 +106,19 @@ function table.maxMin(tb)
     end
     return max, min
 end
+
+--[[
+    @desc: 用B表去填充A表
+    author:BogeyRuan
+    time:2019-07-09 10:26:28
+    --@tbA:
+	--@tbB: 
+    @return:
+]]
+function table.fill(tbA, tbB)
+    for k,v in pairs(tbB) do
+        if tbA[k] == nil then
+            tbA[k] = v
+        end
+    end
+end

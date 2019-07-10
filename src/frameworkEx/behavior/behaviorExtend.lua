@@ -66,6 +66,13 @@ BehaviorExtend = function(object)
             error("Not such method name:" .. methodName)
         end
     end
+
+    function object:isBindBehavior(behavior)
+        if self.behaviorObjects_ and self.behaviorObjects_[tostring(behavior)] then
+            return true
+        end
+        return false
+    end
 end
 
 return BehaviorExtend

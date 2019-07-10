@@ -13,21 +13,19 @@ BgMaskBehavior.exportFuncs = {
     --@object: 
 	--@parent: 要加载背景的节点
 	--@params: {
-        color: 背景颜色，默认背景为70%黑色背景
+        color: 背景颜色，默认背景为50%黑色背景
         shieldNode: 在这个节点区域内的触摸事件将被屏蔽
         callback: 点击屏蔽节点以外区域的回调
         isSwallTouch: 是否吞没事件,默认true
-        isBlur: 是否模糊背景，模糊背景的话color属性将固定为0.8
     }
     @return:
 ]]
 function BgMaskBehavior:addBgMask(object, parent, params)
     assert(parent, "Must have a parent node")
     params = checktable(params)
-    local color = params.color or 0.8
+    local color = params.color or 0.5
     local shieldNode = params.shieldNode
     local callback = params.callback
-    local isBlur = params.isBlur
     local isSwallTouch = params.isSwallTouch == nil and true or params.isSwallTouch
 
     if shieldNode then
@@ -48,15 +46,9 @@ function BgMaskBehavior:addBgMask(object, parent, params)
     local pos = parent:convertToNodeSpace(cc.p(0, 0))
     local layer = object._bgMaskLayer
     if not layer then
-        layer = cc.LayerColor:create(color):addTo(parent, -1000):pos(pos)
+        layer = cc.LayerColor:create(color):addTo(parent, -1000):align(display.CENTER, cc.pAdd(cc.p(display.cx, display.cy),pos)):size(cc.sizeMul(display.size,2))
     end
-    local blurLayer = object._bgBlurLayer
-    if isBlur then
-        blurLayer = display.captureBlurNode():addTo(parent, -1001):pos(pos)
-        layer:setColor(cc.c3b(0, 0, 0))
-        layer:setOpacity(255 * 0.8)
-    end
-
+    
     layer:onTouch(function (event)
         if event.name == "ended" and event.isClick then
             if shieldNode and callback then
@@ -71,13 +63,11 @@ function BgMaskBehavior:addBgMask(object, parent, params)
     end)
     layer:setTouchSwallowEnabled(isSwallTouch)
     object._bgMaskLayer = layer
-    object._bgBlurLayer = blurLayer
     object._bgMaskParams = {
         parent = parent,
         color = color,
         shieldNode = shieldNode,
         callback = callback,
-        isBlur = isBlur,
         isSwallTouch = isSwallTouch
     }
 end
@@ -87,17 +77,14 @@ function BgMaskBehavior:removeBgMask(object)
         object._bgMaskLayer:removeFromParent()
         object._bgMaskLayer = nil
     end
-    if object._bgBlurLayer then
-        object._bgBlurLayer:removeFromParent()
-        object._bgBlurLayer = nil
-    end
     object._bgMaskParams = {}
     object._bgMaskParams = nil
 end
 
-function BgMaskBehavior:resetBgMask(object)
-    local params = object._bgMaskParams
-    if params then
+function BgMaskBehavior:resetBgMask(object, params)
+    params = checktable(params)
+    table.fill(params, object._bgMaskParams)
+    if params.parent then
         object:removeBgMask()
         object:addBgMask(params.parent, params)
     end

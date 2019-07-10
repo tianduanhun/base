@@ -20,8 +20,8 @@ function MainScene:onCreate()
     self._PopupLayer = cc.Node:create():addTo(self, self.ZorderConfig.POPUP)    --弹窗层
     self._AniLayer = cc.Node:create():addTo(self, self.ZorderConfig.ANIMATE)    --动画层
     self._ToastLayer = cc.Node:create():addTo(self, self.ZorderConfig.TOAST)    --提示层
-    self.viewsInfo = {}
-    self.toasts = {}
+    self._ViewsInfo = {}
+    self._Toasts = {}
 end
 
 function MainScene:init_()
@@ -35,7 +35,7 @@ end
 function MainScene:pushScene(scene)
     self._ViewLayer:removeAllChildren()
     self._PopupLayer:removeAllChildren()
-    self.viewsInfo = {}
+    self._ViewsInfo = {}
     self._ViewLayer:add(scene)
     self._ViewLayer:setVisible(true)
 end
@@ -43,10 +43,10 @@ end
 -------------------------------------------------POPUP START
 function MainScene:_showView()
     local topView
-    for i = #self.viewsInfo, 1, -1 do
-        local viewInfo = self.viewsInfo[i]
+    for i = #self._ViewsInfo, 1, -1 do
+        local viewInfo = self._ViewsInfo[i]
 
-        if topView and ((not topView.isKeep) or (topView.isFull)) then
+        if topView and (not topView.isKeep) then
             viewInfo.view:setVisible(false)
         else
             viewInfo.view:setVisible(true)
@@ -54,12 +54,6 @@ function MainScene:_showView()
         end
 
         viewInfo.view:setLocalZOrder(i)
-    end
-
-    if topView then
-        self._ViewLayer:setVisible(not topView.isFull)
-    else
-        self._ViewLayer:setVisible(true)
     end
 end
 
@@ -71,7 +65,6 @@ end
 	--@params: {
         priority: 优先级，默认为0
         isKeep: 是否保持底部弹窗，默认true
-        isFull: 是否是全屏的界面，优化drawcall
     }
     @return:
 ]]
@@ -86,15 +79,15 @@ function MainScene:pushView(view, params)
     end
 
     local index = 1
-    for i = #self.viewsInfo, 1, -1 do
-        local viewInfo = self.viewsInfo[i]
+    for i = #self._ViewsInfo, 1, -1 do
+        local viewInfo = self._ViewsInfo[i]
         if viewInfo.priority <= params.priority then --小于等于弹窗优先级时，确定插入位置，同优先级的新弹窗总是在上面
             index = i + 1
             break
         end
     end
     params.view = view
-    table.insert(self.viewsInfo, index, params)
+    table.insert(self._ViewsInfo, index, params)
     self._PopupLayer:add(view)
 
     self:_showView()
@@ -109,7 +102,7 @@ end
     @return:
 ]]
 function MainScene:popView(target)
-    local index = #self.viewsInfo
+    local index = #self._ViewsInfo
     if index == 0 then
         return
     end
@@ -122,7 +115,7 @@ function MainScene:popView(target)
         end
     end
 
-    local viewInfo = table.remove(self.viewsInfo, index)
+    local viewInfo = table.remove(self._ViewsInfo, index)
     local view = viewInfo.view
     local delayTime = 0
     if type(view.exitAction) == "function" then
@@ -148,7 +141,7 @@ function MainScene:_showToast()
     if self.isShowing then
         return
     end
-    local str = table.remove(self.toasts, 1)
+    local str = table.remove(self._Toasts, 1)
     if not str then
         return
     end
@@ -176,10 +169,10 @@ function MainScene:pushToast(toast)
     if not toast or string.trim(toast) == "" then
         return
     end
-    -- if self.toasts[#self.toasts] == toast then  --短时间内压入相同toast，相同的被忽略
+    -- if self._Toasts[#self._Toasts] == toast then  --短时间内压入相同toast，相同的被忽略
     --     return
     -- end
-    table.insert(self.toasts, toast)
+    table.insert(self._Toasts, toast)
     self:_showToast()
 end
 -------------------------------------------------TOAST ENDED

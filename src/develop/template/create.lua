@@ -4,7 +4,7 @@ local params = {
     modName = "hall",
     isUseView = true, --是否使用界面
 
-    isUseData = true --是否使用数据模块
+    isUseData = false --是否使用数据模块
 }
 
 local function create()
