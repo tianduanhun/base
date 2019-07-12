@@ -10,7 +10,7 @@ function EventBehavior:registerEvent(object)
     local events = checktable(object.registerEvents)
     for k, v in pairs(events) do
         if object[v] and type(object[v]) == "function" then
-            g_PushCenter.addListener(k, handler(object, v), object)
+            g_PushCenter.addListener(k, handler(object, object[v]), object)
         end
     end
 end

@@ -1,6 +1,5 @@
 local AppBase = _require("framework.AppBase")
-local scheduler = _require("framework.scheduler")
-local MainScene = require("mainScene")
+local MainScene = _require("app.scenes.main.mainScene")
 local AppBaseExtend = class("AppBaseExtend", AppBase)
 
 function AppBaseExtend:enterScene(viewName, ...)
@@ -34,7 +33,7 @@ function AppBaseExtend:run(viewName)
     unimport("app.views")
 
     -- 必须延迟一帧加载
-    scheduler.performWithDelayGlobal(function()
+    g_Scheduler.performWithDelayGlobal(function()
         self:enterScene(viewName)
     end, 0)
 end

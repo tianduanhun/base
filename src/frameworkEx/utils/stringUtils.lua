@@ -103,3 +103,44 @@ function string.splitByConfig(str, config)
     
     return strTemp
 end
+
+--[[
+    @desc: 数字转为ASCII码表示的字符串
+    author:BogeyRuan
+    time:2019-07-11 14:56:19
+    --@num: 
+    --@long: 转为多少个字节的字符，默认为动态长度
+    @return:
+]]
+function string.numToAscii(num, long)
+    local str = ""
+    local asciiNum = num % 256
+    while asciiNum >= 0 and num > 0 do
+        str = string.char(asciiNum) .. str
+        num = math.floor(num / 256)
+        asciiNum = num % 256
+    end
+    if long then
+        if #str > long then
+            str = string.sub(str, -long, -1)
+        end
+    end
+
+    return str
+end
+
+--[[
+    @desc: ASCII码转为数字
+    author:BogeyRuan
+    time:2019-07-11 15:49:03
+    --@str: 
+    @return:
+]]
+function string.asciiToNum(str)
+    local num = 0
+    for i = 1, #str do
+        local s = string.sub(str, -i, -i)
+        num = string.byte(s) * math.pow(256, i - 1)
+    end
+    return num
+end

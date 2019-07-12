@@ -1,3 +1,4 @@
 return {
-    pushCenter = require("pushCenter")
+    pushCenter = require("pushCenter"),
+    event = require("event")
 }

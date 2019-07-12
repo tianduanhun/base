@@ -1,5 +1,2 @@
-local init = {
-    event = require("event")
-}
-
-return init
+require("event")
+return {}

@@ -100,8 +100,9 @@ function unimport(path)
     end
 end
 
+g_Scheduler = _require("framework.scheduler")
 -- 加载自定义框架,先加载utils
-local dirs = {"utils", "lib", "event", "database", "socket", "extend", "behavior", "base", "native"}
+local dirs = {"utils", "lib", "behavior", "database", "event", "socket", "extend", "base", "native"}
 for i, v in ipairs(dirs) do
     local module = import(CURRENT_MODULE_NAME .. "." .. v)
     for k, v in pairs(module) do

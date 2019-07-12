@@ -60,8 +60,8 @@ void AppDelegate::initGLContextAttrs()
 
 static void decoder(Data &data)
 {
-    unsigned char sign[] = "bogey";
-    unsigned char key[] = "Ym9nZXk=";
+	const unsigned char sign[] = {0x42, 0x6f, 0x67, 0x65, 0x79};
+	unsigned char key[] = {0x59, 0x6d, 0x39, 0x6e, 0x5a, 0x58, 0x6b, 0x3d};
     
     // decrypt XXTEA
     if (!data.isNull()) {

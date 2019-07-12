@@ -28,6 +28,10 @@ function MainScene:init_()
     g_BehaviorExtend(self)
 end
 
+function MainScene:onEnter()
+    g_SocketManager.new():openConnect()
+end
+
 function MainScene:onCleanup()
     self:unBindAllBehavior()
 end
