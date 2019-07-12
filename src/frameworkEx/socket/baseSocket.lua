@@ -5,11 +5,11 @@ local pbConfig = require("pb.pbConfig")
 local string = string
 
 --包结构
---| B         O         G         | ver:1     | len:65535           | body:string |
---| 0100 0010 0100 1111 0100 0111 | 0011 0001 | 1111 1111 1111 1111 |...          |
+--| B         O         G         | ver:1               | len:65535           | body:string |
+--| 0100 0010 0100 1111 0100 0111 | 0000 0000 0000 0001 | 1111 1111 1111 1111 |...          |
 
 local packHeadLen = 7   --包头长度
-local packHead = "BOG"  --包头前缀
+local packHead = "PKG"  --包头前缀
 local packVersion = 1   --包头版本
 
 BaseSocket.exportFuncs = {
@@ -35,7 +35,7 @@ function BaseSocket:sendData(service, data)
     if dataLen > 65535 then
         error("data is too long")
     end
-    socketData = packHead .. string.numToAscii(packVersion) .. string.numToAscii(dataLen) .. socketData
+    socketData = packHead .. string.numToAscii(packVersion, 2) .. string.numToAscii(dataLen, 2) .. socketData
     self.tcp:send(socketData)
 end
 
@@ -59,13 +59,12 @@ end
 
 local function checkDataPack(data)
     if #data > packHeadLen and string.find(data, packHead, 1, 3) then                       --找到包头，但是数据可能不完整
-        local ver = string.asciiToNum(string.sub(data, 4, 4))                               --校验包头版本
-        if ver ~= packVersion then
+        local ver = string.asciiToNum(string.sub(data, 4, 5))                               --校验包头版本
+        if ver ~= packVersion then                                                          --版本不同，通知外部
             g_PushCenter.pushEvent(g_Event.SOCKET.UPDATE)
-            return false
         end
-        local bodyLen = string.asciiToNum(string.sub(data, 5, 6))                           --从消息中获取包体长度
-        local body = string.sub(data, 7)
+        local bodyLen = string.asciiToNum(string.sub(data, 6, packHeadLen))                 --从消息中获取包体长度
+        local body = string.sub(data, packHeadLen + 1)
         if bodyLen == #body + packHeadLen then                                              --数据包完整
             return true, body
         end
