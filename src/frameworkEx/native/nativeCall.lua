@@ -20,15 +20,15 @@ local signConfig = {
 }
 
 local className = "top.bogeys.export.ExportFunc"
--- result:返回数据类型, default:默认返回值, param:参数对应字段和类型
+-- result:返回数据类型 result = "string", default:默认返回值 default = "", params:参数对应字段和类型 params = {"id:string"}
 local config = {
 }
 
 local function getSign(method)
     local data = config[method]
     local sign = "("
-    if data.param and not table.isEmpty(data.param) then
-        for k, v in ipairs(data.param) do
+    if data.params and not table.isEmpty(data.params) then
+        for k, v in ipairs(data.params) do
             local paramType = (string.split(v, ":"))[2]
             if signConfig[paramType] then
                 sign = sign .. signConfig[paramType]
@@ -47,7 +47,7 @@ local function getSign(method)
 end
 
 local function checkParams(method, params)
-    local data = config[method].param or {}
+    local data = config[method].params or {}
     for i, v in ipairs(data) do
         if not params then
             error(method .. " params is empty")

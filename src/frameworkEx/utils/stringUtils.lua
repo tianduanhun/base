@@ -1,4 +1,3 @@
-
 --[[
     @desc: 判断字段是否为空
     author:{author}
@@ -47,60 +46,50 @@ end
 ]]
 function string.splitByConfig(str, config)
     local configNum = #config
+    local splitIndex = {}
+    for i, v in ipairs(config) do
+        local split_1 = {value = string.sub(v, 1, 1), tag = i, type = 1}
+        local split_2 = {value = string.sub(v, -1, -1), tag = i, type = 2}
+
+        local index_1, index_2 = string.find(str, string.format("%%b%s", v), 1)
+        while index_1 do
+            table.insert(splitIndex, {index = index_1, value = split_1})
+            table.insert(splitIndex, {index = index_2, value = split_2})
+            index_1, index_2 = string.find(str, string.format("%%b%s", v), index_1 + 1)
+        end
+    end
+    table.sort(splitIndex, function(a, b)
+        return a.index < b.index
+    end)
+
     local strTemp = {}
-    local indexs = {}   --所有特殊字符下标合集
+    local splitStack = {{tag = configNum + 1}}
+    local tempStr = ""
     local index = 1
-    while true do
-        local flag = true
-        local realHead, realEnd, indexInConfig
-        for i,v in ipairs(config) do
-            local tempHead, tempEnd = string.find(str, string.format("%%b%s", v), index)
-            if tempHead then
-                flag = false
-                if (not realHead) or realHead > tempHead then
-                    realHead, realEnd, indexInConfig = tempHead, tempEnd, i
-                end
+    for i = 1, #str do
+        local split = splitIndex[index]
+        if split and i == split.index then
+            if tempStr ~= "" then
+                table.insert(strTemp, {str = tempStr, index = splitStack[#splitStack].tag})
             end
-        end
-        if flag then
-            break
+            if split.value.type == 1 then
+                table.insert(splitStack, split.value)
+            end
+            if split.value.type == 2 then
+                if splitStack[#splitStack].tag ~= split.value.tag then
+                    error("The string format is incorrect: " .. str .. ", string: " .. split.value.value)
+                end
+                table.remove(splitStack, #splitStack)
+            end
+            index = index + 1
+            tempStr = ""
         else
-            index = realEnd + 1
-            table.insert(indexs, {i = realHead, j = realEnd, index = indexInConfig})
+            tempStr = tempStr .. string.sub(str, i, i)
         end
     end
-
-    if table.isEmpty(indexs) then
-        return {{text = str, index = configNum + 1}}
+    if tempStr ~= "" then
+        table.insert(strTemp, {str = tempStr, index = configNum + 1})
     end
-
-    for i,v in ipairs(indexs) do
-        local info = indexs[i - 1]
-        local lastIndex
-        if info then
-            lastIndex = info.j + 1
-        else
-            lastIndex = 1
-        end
-
-        local normalStr = string.sub(str, lastIndex, v.i - 1)
-        if normalStr and not string.isEmpty(normalStr) then
-            table.insert(strTemp, {text = normalStr, index = configNum + 1})
-        end
-
-        local specialStr = string.sub(str, v.i, v.j)
-        specialStr = string.sub(specialStr, 2, -2)
-        if specialStr and not string.isEmpty(specialStr) then
-            table.insert(strTemp, {text = specialStr, index = v.index})
-        end
-    end
-
-    local lastIndex = indexs[#indexs].j + 1
-    local normalStr = string.sub(str, lastIndex)
-    if normalStr and not string.isEmpty(normalStr) then
-        table.insert(strTemp, {text = normalStr, index = configNum + 1})
-    end
-    
     return strTemp
 end
 
