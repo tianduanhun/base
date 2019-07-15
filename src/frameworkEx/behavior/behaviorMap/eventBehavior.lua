@@ -1,4 +1,4 @@
-local EventBehavior = class("EventBehavior", g_BehaviorBase)
+local EventBehavior = class("EventBehavior", g_BaseBehavior)
 
 EventBehavior.exportFuncs = {
     "registerEvent",

@@ -1,6 +1,6 @@
-g_BehaviorBase = require("behaviorBase")
+g_BaseBehavior = require("baseBehavior")
 return {
     behaviorExtend = require("behaviorExtend"),
-    behaviorBase = g_BehaviorBase,
+    baseBehavior = g_BaseBehavior,
     behaviorMap = require("behaviorMap")
 }

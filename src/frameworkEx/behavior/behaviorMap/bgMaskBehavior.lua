@@ -1,4 +1,4 @@
-local BgMaskBehavior = class("BgMaskBehavior", g_BehaviorBase)
+local BgMaskBehavior = class("BgMaskBehavior", g_BaseBehavior)
 
 BgMaskBehavior.exportFuncs = {
     "addBgMask",
