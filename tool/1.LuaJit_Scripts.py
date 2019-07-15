@@ -114,7 +114,7 @@ if __name__ == "__main__":
         sys.exit(-2)
 
     # default value
-    projectDir = "E:/Idea/base/"
+    projectDir = os.path.split(os.path.split(__file__)[0])[0]
     mode = "32"
 
     for o, a in opts:

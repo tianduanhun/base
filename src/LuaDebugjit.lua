@@ -1015,7 +1015,12 @@ local function debugger_valueToString(v)
     elseif (vtype == "table" or vtype == "function" or vtype == "boolean") then
         local value = vtype
         xpcall(function() 
-            value = tostring(v)
+            if(LuaDebugger.isFoxGloryProject) then
+                value = vtype
+            else
+                value = tostring(v)
+            end
+            
         end,function()
             value = vtype
         end)
@@ -1740,6 +1745,7 @@ end
     return
 ]]
 local function debugger_getmetatable(value, metatable, vinfos, server, variablesReference, debugSpeedIndex, metatables)
+   
     for i, mtable in ipairs(metatables) do
         if (metatable == mtable) then
             return vinfos
@@ -1788,12 +1794,14 @@ local function debugger_getmetatable(value, metatable, vinfos, server, variables
             end
         end
     end
+    
     local m = getmetatable(metatable)
     if (m) then
         return debugger_getmetatable(value, m, vinfos, server, variablesReference, debugSpeedIndex, metatables)
     else
         return vinfos
     end
+   
 end
 local function debugger_sendTableField(luatable, vinfos, server, variablesReference, debugSpeedIndex, valueType)
     if (valueType == "userdata") then
@@ -1919,8 +1927,12 @@ local function debugger_getBreakVar(body, server)
                 
 				debugger_sendTableValues(value, server, variablesReference, debugSpeedIndex)
 			else
-				if (valueType == "function") then
-					value = tostring(value)
+                if (valueType == "function") then
+                    if(LuaDebugger.isFoxGloryProject) then
+                    value = "function"
+                    else
+                        value = tostring(value)
+                    end
 				end
 				debugger_sendMsg(
                     server,

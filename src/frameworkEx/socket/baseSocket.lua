@@ -60,8 +60,8 @@ end
 
 local function checkDataPack(data)
     if #data > packHeadLen and string.find(data, packHead, 1, 3) then                       --找到包头，但是数据可能不完整
-        local ver = string.asciiToNum(string.sub(data, 4, 5))                               --获取包头版本
-        local bodyLen = string.asciiToNum(string.sub(data, 6, packHeadLen))                 --从消息中获取包体长度
+        local ver = string.asciiToNum(string.sub(data, 4, 4))                               --获取包头版本
+        local bodyLen = string.asciiToNum(string.sub(data, 5, packHeadLen))                 --从消息中获取包体长度
         local body = string.sub(data, packHeadLen + 1)
         if bodyLen == #body + packHeadLen then                                              --数据包完整
             return true, body

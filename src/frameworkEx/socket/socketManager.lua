@@ -47,7 +47,6 @@ function g_SocketManager:reConnect()
 end
 
 function g_SocketManager:startHeartbeat()
-    self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
     self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
         self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
     end, 10)

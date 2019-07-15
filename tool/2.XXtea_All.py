@@ -138,6 +138,9 @@ def encodeRes(projectDir, encodeSign, encodeKey):
     srcPath = joinDir(projectDir, "src_jit")
     xtSrcPath = joinDir(projectDir, "src_xt")
     if not os.path.exists(srcPath):
+        srcPath = joinDir(projectDir, "src")
+    
+    if not os.path.exists(srcPath):
         print "Error: %s is not exists" %(srcPath)
         sys.exit(-2)
 
@@ -160,10 +163,10 @@ if __name__ == "__main__":
         sys.exit(-2)
 
     # default value
-    projectDir = "E:/Idea/base/"
+    projectDir = os.path.split(os.path.split(__file__)[0])[0]
     encodeKey = ""
     encodeSign = "bogey"
-    keyFile = "E:/Idea/base/tool/key"
+    keyFile = os.path.split(__file__)[0] + "/key"
 
     for o, a in opts:
         if o == "-h":
