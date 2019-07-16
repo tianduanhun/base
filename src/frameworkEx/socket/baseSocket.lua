@@ -8,9 +8,9 @@ local string = string
 --| P         K         G         | ver:1     | len:65535           | body:string |
 --| 0101 0000 0100 1011 0100 0111 | 0000 0001 | 1111 1111 1111 1111 |...          |
 
-local packHeadLen = 6   --包头长度
-local packHead = "PKG"  --包头前缀
-local packVersion = 1   --包头版本
+local packHeadLen = 6           --包头长度
+local packHeadPrefix = "PKG"    --包头前缀
+local packVersion = 1           --包头版本
 
 BaseSocket.exportFuncs = {
     "sendData",
@@ -64,11 +64,16 @@ function BaseSocket:_callback(event, data)
 end
 
 local function checkDataPack(data)
-    if #data > packHeadLen and string.find(data, packHead, 1, 3) then                       --找到包头，但是数据可能不完整
-        local ver = string.asciiToNum(string.sub(data, 4, 4))                               --获取包头版本
-        local bodyLen = string.asciiToNum(string.sub(data, 5, packHeadLen))                 --从消息中获取包体长度
-        local body = string.sub(data, packHeadLen + 1)
-        if bodyLen == #body + packHeadLen then                                              --数据包完整
+    if #data < packHeadLen then                                                             --数据长度不够
+        return false
+    end
+    local start = string.find(data, packHeadPrefix, 1)
+    if start then                                                                           --找到包头
+        data = string.sub(data, start)                                                      --去除包头之前可能存在的错误数据
+        local ver = string.asciiToNum(string.sub(data, 4, 4))                               --包协议版本（可能之后存在不同包协议）
+        local bodyLen = string.asciiToNum(string.sub(data, 5, packHeadLen))
+        local body = string.sub(data, packHeadLen + 1, bodyLen)
+        if bodyLen == #body + packHeadLen then
             return true, body
         end
     end
@@ -76,13 +81,8 @@ local function checkDataPack(data)
 end
 
 function BaseSocket:readData(data)
-    local tempData = self.receiveData .. data                                               --之前的数据可能存在错误，先检查下
-    local bool, body = checkDataPack(tempData)
-    if bool then
-        data = tempData
-    else
-        bool, body = checkDataPack(data)
-    end
+    data = self.receiveData .. data
+    local bool, body = checkDataPack(data)
     while bool do
         local socketData = g_PbManager.decode(pbConfig.method.SOCKET, body)                 --解包socket
         if not table.isEmpty(socketData) then                                               --如果有数据
