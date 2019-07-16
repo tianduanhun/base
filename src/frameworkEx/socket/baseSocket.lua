@@ -14,7 +14,8 @@ local packVersion = 1   --包头版本
 
 BaseSocket.exportFuncs = {
     "sendData",
-    "reConnect"
+    "reConnect",
+    "closeConnect"
 }
 
 function BaseSocket:ctor(host, port)
@@ -33,16 +34,20 @@ function BaseSocket:sendData(service, data)
     local socketData = g_PbManager.encode(pbConfig.method.SOCKET, {service = service, body = serviceData})
     local dataLen = packHeadLen + string.len(socketData)
     if dataLen > 65535 then
-        print("data is too long")
+        print("data is too long, max len is 2^16 - 1")
         return
     end
-    socketData = packHead .. string.numToAscii(packVersion, 1) .. string.numToAscii(dataLen, 2) .. socketData
+    socketData = table.concat(packHead, string.numToAscii(packVersion, 1), string.numToAscii(dataLen, 2), socketData)
     self.tcp:send(socketData)
 end
 
 function BaseSocket:reConnect()
     self.receiveData = ""
     self.tcp:connect()
+end
+
+function BaseSocket:closeConnect()
+    self.tcp:close()
 end
 
 ---------------------------------------
@@ -71,8 +76,13 @@ local function checkDataPack(data)
 end
 
 function BaseSocket:readData(data)
-    data = self.receiveData .. data                                                         --连接之前暂存的数据
-    local bool, body = checkDataPack(data)
+    local tempData = self.receiveData .. data                                               --之前的数据可能存在错误，先检查下
+    local bool, body = checkDataPack(tempData)
+    if bool then
+        data = tempData
+    else
+        bool, body = checkDataPack(data)
+    end
     while bool do
         local socketData = g_PbManager.decode(pbConfig.method.SOCKET, body)                 --解包socket
         if not table.isEmpty(socketData) then                                               --如果有数据
@@ -82,11 +92,7 @@ function BaseSocket:readData(data)
         data = string.sub(data, packHeadLen + #body + 1)                                    --获取下一段数据
         bool, body = checkDataPack(data)                                                    --检测数据包
     end
-    if string.find(data, packHead, 1, 3) then                                               --判断剩下的数据是否是包头开始的
-        self.receiveData = data                                                             --是正常的数据则保存
-    else
-        self.receiveData = ""                                                               --不是正常的数据则清空
-    end
+    self.receiveData = data
 end
 
 return BaseSocket
