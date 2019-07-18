@@ -37,7 +37,7 @@ function BaseSocket:sendData(service, data)
         print("data is too long, max len is 2^16 - 1")
         return
     end
-    socketData = table.concat(packHead, string.numToAscii(packVersion, 1), string.numToAscii(dataLen, 2), socketData)
+    socketData = table.concat({packHeadPrefix, string.numToAscii(packVersion, 1), string.numToAscii(dataLen, 2), socketData})
     self.tcp:send(socketData)
 end
 
@@ -74,7 +74,7 @@ local function checkDataPack(data)
         local bodyLen = string.asciiToNum(string.sub(data, 5, packHeadLen))
         local body = string.sub(data, packHeadLen + 1, bodyLen)
         if bodyLen == #body + packHeadLen then
-            return true, body
+            return true, body, start
         end
     end
     return false
@@ -82,15 +82,15 @@ end
 
 function BaseSocket:readData(data)
     data = self.receiveData .. data
-    local bool, body = checkDataPack(data)
+    local bool, body, offset = checkDataPack(data)
     while bool do
         local socketData = g_PbManager.decode(pbConfig.method.SOCKET, body)                 --解包socket
         if not table.isEmpty(socketData) then                                               --如果有数据
             local serviceData = g_PbManager.decode(socketData.service, socketData.body)     --解包对应的服务数据
             g_PushCenter.pushEvent(socketData.service, serviceData)                         --派发事件和数据
         end
-        data = string.sub(data, packHeadLen + #body + 1)                                    --获取下一段数据
-        bool, body = checkDataPack(data)                                                    --检测数据包
+        data = string.sub(data, packHeadLen + #body + offset)                               --获取下一段数据
+        bool, body, offset = checkDataPack(data)                                            --检测数据包
     end
     self.receiveData = data
 end

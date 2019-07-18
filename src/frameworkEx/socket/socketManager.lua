@@ -41,7 +41,7 @@ function g_SocketManager:openConnect(tag)
         self:autoCloseConnect(false)
         self.connect = nil
     end
-    self.connect = baeSocket.new("www.baidu.com", 80)
+    self.connect = baeSocket.new("localhost", 1234)
 end
 
 function g_SocketManager:send(service, data)
@@ -122,7 +122,6 @@ end
 
 function g_SocketManager:onClosed()
     self.status = SimpleTCP.EVENT_CLOSED
-    self.connect = nil
     self:autoStopHeartbeat()
     self:autoReConnect()
 end
