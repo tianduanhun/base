@@ -7,8 +7,7 @@ g_SocketManager.registerEvents = {
     [g_Event.SOCKET.CONNECTED] = "onConnected",
     [g_Event.SOCKET.CLOSED] = "onClosed",
     [g_Event.SOCKET.FAILED] = "onFailed",
-    [pbConfig.method.HEARTBEAT] = "onHeartbeatResp",
-    [pbConfig.method.LOGIN] = "onLogin"
+    [pbConfig.method.HEARTBEAT] = "onHeartbeatResp"
 }
 
 g_SocketManager.exportFuncs = {
@@ -143,11 +142,6 @@ function g_SocketManager:onHeartbeatResp(data)
         self.heartbeatIndex = data.index + 1
         self.heartbeatStatus = true
     end
-end
-
-function g_SocketManager:onLogin(data)
-    data = checktable(data)
-    dump(data)
 end
 
 return g_SocketManager

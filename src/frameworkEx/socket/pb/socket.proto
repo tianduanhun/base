@@ -22,28 +22,3 @@ message heartbeatResp {
     int32       code        = 1;    //结果码
     int32       index       = 2;    //心跳索引，服务器主动断开返回0
 }
-
-message loginReq {
-    string      account     = 1;
-    string      password    = 2;
-    int32       appversion  = 3;
-}
-
-message loginResp {
-    int32       code        = 1;
-    string      msg         = 2;
-    accountInfo account     = 3;
-    userInfo    user        = 4;
-}
-
-message accountInfo {
-    string      token       = 1;
-    string      secret      = 2;
-}
-
-message userInfo {
-    int32       uid         = 1;
-    string      nick        = 2;
-    string      icon        = 3;
-    int32       sex         = 4;
-}

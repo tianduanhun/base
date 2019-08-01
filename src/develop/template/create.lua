@@ -43,7 +43,7 @@ local function create()
         io.mkdir(modDir)
 
         -- 基础文件
-        baseConfig = {
+        local baseConfig = {
             [1] = {fileName .. "Data", "data/templateData"},
             [2] = {"init", "data/init"}
         }
@@ -63,14 +63,20 @@ local function create()
         local protoDir = modDir .. "proto/"
         io.mkdir(protoDir)
 
-        local file = protoDir .. "pbConfig.lua"
-        if not io.exists(file) then
-            local content = io.readfile("data/proto/pbConfig.lua")
-            content = string.gsub(content, "Template", modName)
-            content = string.gsub(content, "template", fileName)
-            io.writefile(file, content)
-        else
-            print(table.concat({"[Warning][data]:'", file, "' exists"}))
+        baseConfig = {
+            [1] = {"pbConfig.lua", "data/proto/pbConfig.lua"},
+            [2] = {fileName .. ".proto", "data/proto/template.proto"}
+        }
+        for i, v in ipairs(baseConfig) do
+            local file = protoDir .. v[1]
+            if not io.exists(file) then
+                local content = io.readfile(v[2])
+                content = string.gsub(content, "Template", modName)
+                content = string.gsub(content, "template", fileName)
+                io.writefile(file, content)
+            else
+                print(table.concat({"[Warning][data]:'", file, "' exists"}))
+            end
         end
 
         -- config
