@@ -29,7 +29,7 @@ function MainScene:init_()
 end
 
 function MainScene:onEnter()
-    g_SocketManager.new():openConnect()
+    g_SocketManager:openConnect()
 end
 
 function MainScene:onCleanup()

@@ -38,6 +38,7 @@ function BaseSocket:sendData(service, data)
         return
     end
     socketData = table.concat({packHeadPrefix, string.numToAscii(packVersion, 1), string.numToAscii(dataLen, 2), socketData})
+    print("send socket data", #socketData, socketData)
     self.tcp:send(socketData)
 end
 
@@ -53,12 +54,16 @@ end
 ---------------------------------------
 function BaseSocket:_callback(event, data)
     if event == SimpleTCP.EVENT_DATA then
+        print("socket data", #data, data)
         self:readData(data)
     elseif event == SimpleTCP.EVENT_CONNECTED then
+        print("socket connected")
         g_PushCenter.pushEvent(g_Event.SOCKET.CONNECTED)
     elseif event == SimpleTCP.EVENT_CLOSED then
+        print("socket closed")
         g_PushCenter.pushEvent(g_Event.SOCKET.CLOSED)
     elseif event == SimpleTCP.EVENT_FAILED then
+        print("socket failed")
         g_PushCenter.pushEvent(g_Event.SOCKET.FAILED)
     end
 end

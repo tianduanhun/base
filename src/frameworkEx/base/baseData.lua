@@ -21,7 +21,8 @@ function BaseData:ctor(...)
 end
 
 -- Override Me
-function BaseData:onCreate(...)
+function BaseData:onCreate()
+    error("Must override the onCreate method")
 end
 
 function BaseData:_init()

@@ -32,7 +32,7 @@ end
 function UpdateScene:enterGame()
     require("frameworkEx.init")
     require("app.common.init")
-    require("app.scenes.main.appBaseExtend").new():run("hall")
+    require("app.scenes.main.appBaseExtend").new():run("login")
 end
 
 function UpdateScene:onCleanup()

@@ -7,7 +7,8 @@ g_SocketManager.registerEvents = {
     [g_Event.SOCKET.CONNECTED] = "onConnected",
     [g_Event.SOCKET.CLOSED] = "onClosed",
     [g_Event.SOCKET.FAILED] = "onFailed",
-    [pbConfig.method.HEARTBEAT] = "onHeartbeatResp"
+    [pbConfig.method.HEARTBEAT] = "onHeartbeatResp",
+    [pbConfig.method.LOGIN] = "onLogin"
 }
 
 g_SocketManager.exportFuncs = {
@@ -17,7 +18,7 @@ g_SocketManager.exportFuncs = {
     "closeConnect"
 }
 
-local HEARTBEAT_TIME = 10       --心跳间隔时间
+local HEARTBEAT_TIME = 5       --心跳间隔时间
 local RECONNECT_TIMES = 1       --重连次数
 
 function g_SocketManager:ctor()
@@ -41,7 +42,7 @@ function g_SocketManager:openConnect(tag)
         self:autoCloseConnect(false)
         self.connect = nil
     end
-    self.connect = baeSocket.new("localhost", 1234)
+    self.connect = baeSocket.new("192.168.220.130", 8888)
 end
 
 function g_SocketManager:send(service, data)
@@ -73,15 +74,15 @@ function g_SocketManager:autoSend()
 end
 
 function g_SocketManager:autoStartHeartbeat()
-    self.heartbeatStatus = true
-    self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
-        if not self.heartbeatStatus then    --上一条心跳没收到回复
-            self:autoCloseConnect(true)
-            return
-        end
-        self.heartbeatStatus = false
-        self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
-    end, HEARTBEAT_TIME)
+    -- self.heartbeatStatus = true
+    -- self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
+    --     if not self.heartbeatStatus then    --上一条心跳没收到回复
+    --         self:autoCloseConnect(true)
+    --         return
+    --     end
+    --     self.heartbeatStatus = false
+    --     self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
+    -- end, HEARTBEAT_TIME)
 end
 
 function g_SocketManager:autoStopHeartbeat()
@@ -135,12 +136,18 @@ end
 function g_SocketManager:onHeartbeatResp(data)
     data = checktable(data)
     if data.code == 0 then
-        if self.heartbeatIndex ~= data.index then
-            print("heartbeat have a mistake")
+        if data.index == 0 then
+            self:closeConnect()
+            return
         end
         self.heartbeatIndex = data.index + 1
         self.heartbeatStatus = true
     end
+end
+
+function g_SocketManager:onLogin(data)
+    data = checktable(data)
+    dump(data)
 end
 
 return g_SocketManager

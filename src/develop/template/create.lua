@@ -1,10 +1,10 @@
 require("createUtils")
 
 local params = {
-    modName = "hall",
+    modName = "login",
     isUseView = true, --是否使用界面
 
-    isUseData = false --是否使用数据模块
+    isUseData = true --是否使用数据模块
 }
 
 local function create()
@@ -32,7 +32,7 @@ local function create()
                 content = string.gsub(content, "template", fileName)
                 io.writefile(file, content)
             else
-                print(table.concat("[Warning][views]:'", file, "' exists"))
+                print(table.concat({"[Warning][views]:'", file, "' exists"}))
             end
         end
     end
@@ -55,8 +55,36 @@ local function create()
                 content = string.gsub(content, "template", fileName)
                 io.writefile(file, content)
             else
-                print(table.concat("[Warning][data]:'", file, "' exists"))
+                print(table.concat({"[Warning][data]:'", file, "' exists"}))
             end
+        end
+
+        -- proto
+        local protoDir = modDir .. "proto/"
+        io.mkdir(protoDir)
+
+        local file = protoDir .. "pbConfig.lua"
+        if not io.exists(file) then
+            local content = io.readfile("data/proto/pbConfig.lua")
+            content = string.gsub(content, "Template", modName)
+            content = string.gsub(content, "template", fileName)
+            io.writefile(file, content)
+        else
+            print(table.concat({"[Warning][data]:'", file, "' exists"}))
+        end
+
+        -- config
+        local configDir = modDir .. "config/"
+        io.mkdir(configDir)
+
+        local file = configDir .. "config.lua"
+        if not io.exists(file) then
+            local content = io.readfile("data/config/config.lua")
+            content = string.gsub(content, "Template", modName)
+            content = string.gsub(content, "template", fileName)
+            io.writefile(file, content)
+        else
+            print(table.concat({"[Warning][data]:'", file, "' exists"}))
         end
     end
 end
