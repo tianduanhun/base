@@ -1,11 +1,10 @@
 local LoginCtr = class("LoginCtr", g_BaseCtr)
 
-local loginConfig = import("app.data.login").getConfig()
-local loginInterface = import("app.data.login").getData()
+local loginInterface, Login = app:getDataModule("login")
+local loginConfig = Login.getConfig()
 
 --{key = funcName}
 LoginCtr.registerEvents = {}
-LoginCtr.exportFuncs = {}
 
 function LoginCtr:onCreate(...)
     loginInterface:doMethod("addObserver", self)

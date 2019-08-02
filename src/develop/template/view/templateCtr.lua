@@ -1,11 +1,10 @@
 local TemplateCtr = class("TemplateCtr", g_BaseCtr)
 --[[
-local templateConfig = import("app.data.template").getConfig()
-local templateInterface = import("app.data.template").getData()
+local templateInterface, Template = app:getDataModule("template")
+local templateConfig = Template.getConfig()
 ]]
 --{key = funcName}
 TemplateCtr.registerEvents = {}
-TemplateCtr.exportFuncs = {}
 
 function TemplateCtr:onCreate(...)
 --[[    templateInterface:doMethod("addObserver", self)]]

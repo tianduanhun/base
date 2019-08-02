@@ -13,6 +13,12 @@ function AppBaseExtend:createView(viewName, ...)
     return viewClass.new(...)
 end
 
+function AppBaseExtend:getDataModule(moduleName)
+    local dataModuleName = "app.data." .. moduleName
+    local dataModule = import(moduleName)
+    return dataModule.getData(), dataModule
+end
+
 function AppBaseExtend:pushView(view, param)
     self._BaseScene:pushView(view, param)
 end
