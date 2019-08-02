@@ -35,10 +35,11 @@ function cc.Node:onTouch(func)
             if not self:hitTest(cc.p(event.x, event.y)) then
                 event.name = "cancelled"
             end
+            local isClick = false
             if math.abs(event.x - event.startX) <= display.width / 100 and math.abs(event.y - event.startY) <= display.width / 100 then
-                event.isClick = true
+                isClick = event.name == "ended"
             end
-            func(event)
+            func(event, isClick)
         else
             func(event)
         end

@@ -12,8 +12,8 @@ end
 --------------------------------------------------
 function LoginView:initView()
     local text = ccui.Text:create("登录", "", 40):addTo(self):align(display.CENTER, display.cx, display.cy)
-    text:onTouch(function(event)
-        if event.isClick then
+    text:onTouch(function(event, isClick)
+        if isClick then
             self:doLogic("requestLogin")
         end
     end)
