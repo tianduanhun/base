@@ -44,6 +44,7 @@ end
 
 function AppBaseExtend:onEnterForeground()
     print("onEnterForeground")
+    g_SocketManager:doMethod("reConnect")
 end
 
 return AppBaseExtend

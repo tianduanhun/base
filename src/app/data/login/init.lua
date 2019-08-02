@@ -1,12 +1,12 @@
 local init = {
     getData = function()
-        return require("loginData"):getInstance()
+        return require("loginInterface"):getInstance()
     end,
     getConfig = function()
         return require("config.config")
     end,
     _DESTROY = function()
-        require("loginData"):destroy()
+        require("loginInterface"):destroy()
     end
 }
 

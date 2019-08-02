@@ -1,12 +1,12 @@
 local init = {
     getData = function()
-        return require("templateData"):getInstance()
+        return require("templateInterface"):getInstance()
     end,
     getConfig = function()
         return require("config.config")
     end,
     _DESTROY = function()
-        require("templateData"):destroy()
+        require("templateInterface"):destroy()
     end
 }
 

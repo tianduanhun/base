@@ -4,7 +4,7 @@ end)
 
 function BaseView:ctor(...)
     self:_init()
-    self:bindCtr()
+    self:bindCtr(...)
     self:onCreate(...)
 end
 
@@ -36,19 +36,21 @@ function BaseView:getCtrClass()
     return env.require(string.lowerFirst(string.gsub(self.__cname, "View", "Ctr")))
 end
 
-function BaseView:bindCtr()
-    self._Ctr = self:getCtrClass().new(self)
+function BaseView:bindCtr(...)
+    self._Ctr = self:getCtrClass().new(self, ...)
 end
 
 function BaseView:doLogic(methodName, ...)
     if self._Ctr and self._Ctr._handler then
-        return self._Ctr:_haldler(methodName, ...)
+        return self._Ctr:_handler(methodName, ...)
     end
 end
 
 function BaseView:_handler(methodName, ...)
     if methodName and self[methodName] then
         self[methodName](self, ...)
+    else
+        print(self.__cname, methodName .. " method does not exist")
     end
 end
 

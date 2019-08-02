@@ -50,8 +50,8 @@ function g_SocketManager:send(service, data)
 end
 
 function g_SocketManager:reConnect()
-    self.sendCacheData = {}
     if self.status == SimpleTCP.EVENT_FAILED or self.status == SimpleTCP.EVENT_CLOSED then
+        self.sendCacheData = {}
         self.connect:doMethod("reConnect")
     end
 end
@@ -63,25 +63,23 @@ end
 ----------------------------------------------------------------
 
 function g_SocketManager:autoSend()
-    if #self.sendCacheData > 0 then        --发送数据缓存里存在数据
-        if self.status == SimpleTCP.EVENT_CONNECTED then
-            local data = table.remove(self.sendCacheData, 1)
-            self.connect:doMethod("sendData", data.service, data.data)
-        end
+    if self.status == SimpleTCP.EVENT_CONNECTED and #self.sendCacheData > 0 then        --发送数据缓存里存在数据
+        local data = table.remove(self.sendCacheData, 1)
+        self.connect:doMethod("sendData", data.service, data.data)
         self:autoSend()
     end
 end
 
 function g_SocketManager:autoStartHeartbeat()
-    -- self.heartbeatStatus = true
-    -- self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
-    --     if not self.heartbeatStatus then    --上一条心跳没收到回复
-    --         self:autoCloseConnect(true)
-    --         return
-    --     end
-    --     self.heartbeatStatus = false
-    --     self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
-    -- end, HEARTBEAT_TIME)
+    self.heartbeatStatus = true
+    self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
+        if not self.heartbeatStatus then    --上一条心跳没收到回复
+            self:autoCloseConnect(true)
+            return
+        end
+        self.heartbeatStatus = false
+        self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
+    end, HEARTBEAT_TIME)
 end
 
 function g_SocketManager:autoStopHeartbeat()

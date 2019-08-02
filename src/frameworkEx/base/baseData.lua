@@ -11,13 +11,13 @@ function BaseData:destroy()
     self.instance:onCleanup()
     self.instance = nil
 end
--------------------------------------------
+--------------------------------------------------
 BaseData.registerEvents = {}
 BaseData.exportFuncs = {}
 
-function BaseData:ctor(...)
+function BaseData:ctor()
     self:_init()
-    self:onCreate(...)
+    self:onCreate()
 end
 
 -- Override Me
@@ -29,11 +29,13 @@ function BaseData:_init()
     g_BehaviorExtend(self)
     self:bindBehavior(g_BehaviorMap.eventBehavior)
     self:registerEvent()
+    self:bindBehavior(g_BehaviorMap.observerBehavior)
 end
 
 function BaseData:onCleanup()
     self:unRegisterEvent()
     self:unBindAllBehavior()
+    self:removeAllObserver()
     self:onDestroy()
 end
 
