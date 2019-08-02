@@ -15,7 +15,7 @@ end
 
 function AppBaseExtend:getDataModule(moduleName)
     local dataModuleName = "app.data." .. moduleName
-    local dataModule = import(moduleName)
+    local dataModule = import(dataModuleName)
     return dataModule.getData(), dataModule
 end
 

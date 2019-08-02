@@ -134,7 +134,7 @@ function string.asciiToNum(str)
     local num = 0
     for i = 1, #str do
         local s = string.sub(str, -i, -i)
-        num = num + string.byte(s) * math.pow(256, i - 1)
+        num = num + string.byte(s) * 256 ^ (i - 1)
     end
     return num
 end
