@@ -111,7 +111,7 @@ function MainScene:popView(target)
         return
     end
     if target then
-        for i, v in ipairs(target) do
+        for i, v in ipairs(self._ViewsInfo) do
             if v.view == target then
                 index = i
                 break

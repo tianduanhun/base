@@ -1,5 +1,5 @@
 
-³
+õ
 $src/app/data/login/proto/login.protologin"`
 loginReq
 account (	Raccount
@@ -11,12 +11,9 @@ appversion"„
 code (Rcode
 msg (	Rmsg,
 account (2.login.accountInfoRaccount#
-user (2.login.userInfoRuser";
+user (2.login.userInfoRuser"#
 accountInfo
-token (	Rtoken
-secret (	Rsecret"V
+token (	Rtoken"0
 userInfo
 uid (Ruid
-nick (	Rnick
-icon (	Ricon
-sex (Rsexbproto3
+nick (	Rnickbproto3

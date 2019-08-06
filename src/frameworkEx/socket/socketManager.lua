@@ -7,6 +7,7 @@ g_SocketManager.registerEvents = {
     [g_Event.SOCKET.CONNECTED] = "onConnected",
     [g_Event.SOCKET.CLOSED] = "onClosed",
     [g_Event.SOCKET.FAILED] = "onFailed",
+    [g_Event.SOCKET.SECRET] = "onSerect",
     [pbConfig.method.HEARTBEAT] = "onHeartbeatResp"
 }
 
@@ -33,6 +34,7 @@ end
 function g_SocketManager:initParams()
     self.reconnectTimes = 0     --自动重连次数
     self.reconnectStatus = true --是否自动重连
+    self.socketSecret = ""      --校验密钥
 end
 
 ----------------------------------------------------------------
@@ -45,7 +47,7 @@ function g_SocketManager:openConnect(tag)
 end
 
 function g_SocketManager:send(service, data)
-    table.insert(self.sendCacheData, {service = service, data = data})
+    table.insert(self.sendCacheData, {service = service, data = data, secret = self.socketSecret})
     self:autoSend()
 end
 
@@ -65,21 +67,21 @@ end
 function g_SocketManager:autoSend()
     if self.status == SimpleTCP.EVENT_CONNECTED and #self.sendCacheData > 0 then        --发送数据缓存里存在数据
         local data = table.remove(self.sendCacheData, 1)
-        self.connect:doMethod("sendData", data.service, data.data)
+        self.connect:doMethod("sendData", data.service, data.data, data.secret)
         self:autoSend()
     end
 end
 
 function g_SocketManager:autoStartHeartbeat()
-    self.heartbeatStatus = true
-    self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
-        if not self.heartbeatStatus then    --上一条心跳没收到回复
-            self:autoCloseConnect(true)
-            return
-        end
-        self.heartbeatStatus = false
-        self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
-    end, HEARTBEAT_TIME)
+    -- self.heartbeatStatus = true
+    -- self.heartbeatScheduler = g_Scheduler.scheduleGlobal(function ()
+    --     if not self.heartbeatStatus then    --上一条心跳没收到回复
+    --         self:autoCloseConnect(true)
+    --         return
+    --     end
+    --     self.heartbeatStatus = false
+    --     self:send(pbConfig.method.HEARTBEAT, {index = self.heartbeatIndex})
+    -- end, HEARTBEAT_TIME)
 end
 
 function g_SocketManager:autoStopHeartbeat()
@@ -90,7 +92,8 @@ function g_SocketManager:autoStopHeartbeat()
 end
 
 function g_SocketManager:autoReConnect()
-    if not self.reconnectStatus then
+    if not self.reconnectStatus then    --属于服务器或客户端主动断开连接
+        self:initParams()
         return
     end
     if self.reconnectTimes >= RECONNECT_TIMES then
@@ -128,6 +131,10 @@ function g_SocketManager:onFailed()
     self.status = SimpleTCP.EVENT_FAILED
     self:autoStopHeartbeat()
     self:autoReConnect()
+end
+
+function g_SocketManager:onSerect(secret)
+    self.socketSecret = secret
 end
 
 function g_SocketManager:onHeartbeatResp(data)

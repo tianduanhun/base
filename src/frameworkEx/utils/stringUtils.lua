@@ -31,7 +31,7 @@ end
     @return:
 ]]
 function string.lowerFirst(input)
-    return string.lower(string.sub(input, 1, 1)) .. string.sub(input, 2, -1)
+    return string.lower(string.sub(input, 1, 1)) .. string.sub(input, 2)
 end
 
 --[[
@@ -94,7 +94,7 @@ function string.splitByConfig(str, config)
 end
 
 --[[
-    @desc: 数字转为ASCII码表示的字符串
+    @desc: 数字转为ASCII码对应的字符串
     author:BogeyRuan
     time:2019-07-11 14:56:19
     --@num: 
@@ -124,7 +124,7 @@ function string.numToAscii(num, long)
 end
 
 --[[
-    @desc: ASCII码转为数字
+    @desc: ASCII码对应的字符串转为数字
     author:BogeyRuan
     time:2019-07-11 15:49:03
     --@str: 

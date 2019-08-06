@@ -1,15 +1,17 @@
 
-¶
-&src/frameworkEx/socket/pb/socket.protosocket"9
+æ
+&src/frameworkEx/socket/pb/socket.protosocket"Q
 	socketReq
 service (	Rservice
-body (	Rbody"`
+body (	Rbody
+secret (	Rsecret"x
 
 socketResp
 code (Rcode
 msg (	Rmsg
 service (	Rservice
-body (	Rbody"$
+body (	Rbody
+secret (	Rsecret"$
 heartbeatReq
 index (Rindex"9
 heartbeatResp

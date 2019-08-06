@@ -44,7 +44,7 @@ function BgMaskBehavior:addBgMask(object, parent, params)
     end
 
     local pos = parent:convertToNodeSpace(cc.p(0, 0))
-    local layer = object._bgMaskLayer
+    local layer = self._bgMaskLayer
     if not layer then
         layer = cc.LayerColor:create(color):addTo(parent, -1000):align(display.CENTER, cc.pAdd(cc.p(display.cx, display.cy),pos)):size(cc.sizeMul(display.size,2))
     end
@@ -62,8 +62,8 @@ function BgMaskBehavior:addBgMask(object, parent, params)
         end
     end)
     layer:setTouchSwallowEnabled(isSwallTouch)
-    object._bgMaskLayer = layer
-    object._bgMaskParams = {
+    self._bgMaskLayer = layer
+    self._bgMaskParams = {
         parent = parent,
         color = color,
         shieldNode = shieldNode,
@@ -73,20 +73,20 @@ function BgMaskBehavior:addBgMask(object, parent, params)
 end
 
 function BgMaskBehavior:removeBgMask(object)
-    if object._bgMaskLayer then
-        object._bgMaskLayer:removeFromParent()
-        object._bgMaskLayer = nil
+    if self._bgMaskLayer then
+        self._bgMaskLayer:removeFromParent()
+        self._bgMaskLayer = nil
     end
-    object._bgMaskParams = {}
-    object._bgMaskParams = nil
+    self._bgMaskParams = {}
+    self._bgMaskParams = nil
 end
 
 function BgMaskBehavior:resetBgMask(object, params)
     params = checktable(params)
-    table.fill(params, object._bgMaskParams)
+    table.fill(params, self._bgMaskParams)
     if params.parent then
-        object:removeBgMask()
-        object:addBgMask(params.parent, params)
+        self:removeBgMask(object)
+        self:addBgMask(object, params.parent, params)
     end
 end
 

@@ -5,6 +5,7 @@ package socket;
 message socketReq {
     string      service     = 1;    //服务名
     string      body        = 2;    //参数
+    string      secret      = 3;    //验证密钥
 }
 
 message socketResp {
@@ -12,6 +13,7 @@ message socketResp {
     string      msg         = 2;    //错误消息
     string      service     = 3;    //服务名
     string      body        = 4;    //结果
+    string      secret      = 5;    //重置的验证密钥
 }
 
 message heartbeatReq {
