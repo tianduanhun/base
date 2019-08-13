@@ -13,6 +13,21 @@ function table.isEmpty(tb)
 end
 
 --[[
+    @desc: 获取表长度
+    author:BogeyRuan
+    time:2019-08-12 15:54:54
+    --@t: 
+    @return:
+]]
+function table.size(t)
+    local count = 0
+    for k, v in pairs(t) do
+        count = count + 1
+    end
+    return count
+end
+
+--[[
     @desc: 获取表里指定字段的所有值
     author:BogeyRuan
     time:2019-06-17 15:33:28

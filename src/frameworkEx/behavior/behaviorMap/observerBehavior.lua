@@ -10,12 +10,12 @@ ObserverBehavior.exportFuncs = {
 
 function ObserverBehavior:ctor()
     self.observerList = {}
-    setmetatable(self.observerList, {__mode = "k"})
+    setmetatable(self.observerList, {__mode = "kv"})
     self.notifyFuncName = "onObserverNotify"
 
     self.isNotifying = false
     self.needDeleteObserver = {}
-    setmetatable(self.needDeleteObserver, {__mode = "k"})
+    setmetatable(self.needDeleteObserver, {__mode = "kv"})
 end
 
 function ObserverBehavior:addObserver(object, observer)

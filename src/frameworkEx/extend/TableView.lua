@@ -1,378 +1,440 @@
-local TableView = {}
+local TableViewCell = class("TableViewCell", function()
+	return cc.Node:create()
+end)
 
---[[ In TableView, index is Lua index, from 1 to N
-]]--
-
-local ListView = ccui.ListView
-
---[[ internal method
-self: listview
-item: to be check
-]]--
-local function checkInView(self, item)
-	-- item convert relative to listview
-	local posA = item:convertToWorldSpace(cc.p(0, 0))
-	posA = self:convertToNodeSpace(posA)
-	posA.x = posA.x + self._checkOffsetX
-	posA.y = posA.y + self._checkOffsetY
-	local sizeA = item:getContentSize()
-	-- AABB
-	local centerXdelta = (sizeA.width + self._checkWidth) / 2
-	local centerYdelta = (sizeA.height + self._checkHeight) / 2
-	if math.abs((posA.x + sizeA.width / 2) - (self._checkWidth / 2)) <= centerXdelta and
-		math.abs((posA.y + sizeA.height / 2) - (self._checkHeight / 2)) <= centerYdelta then
-		return true
-	end
-	return false
+function TableViewCell:ctor()
+	self.index = 0
 end
 
--- internal method
-local function scrolling(self)
-	if self._headIndex == nil then -- out view, try recreate while bouncing
-		for i = self._tailIndex, 1, -1 do
-			local item = ListView.getItem(self, i - 1)
-			if not checkInView(self, item) then
-				break
-			end
-			if #item:getChildren() > 0 then break end
-			item:addChild(self:_loadSource(i))
-			self._headIndex = i
-		end
-		return
-	end
-	if self._tailIndex == nil then -- out view, try recreate while bouncing
-		local items = ListView.getItems(self)
-		for i = self._headIndex, #items do
-			local item = items[i]
-			if not checkInView(self, item) then
-				break
-			end
-			if #item:getChildren() > 0 then break end
-			item:addChild(self:_loadSource(i))
-			self._tailIndex = i
-		end
-		return
-	end
-
-	if nil == self._innerP then return end
-
-	local direction = self:getDirection()
-	local isForward = false
-	if 1 == direction then -- VERTICAL
-		local py = self:getInnerContainer():getPositionY()
-		if self._innerP < py then -- 加载下方数据
-			isForward = true
-		end
-		self._innerP = py
-	else
-		local px = self:getInnerContainer():getPositionX()
-		if self._innerP > px then -- 加载右方数据
-			isForward = true
-		end
-		self._innerP = px
-	end
-
-	local item
-	if isForward then
-		item = ListView.getItem(self, self._tailIndex - 1)
-		if checkInView(self, item) then -- tail in view
-			repeat -- add tail
-				item = ListView.getItem(self, self._tailIndex)
-				if nil == item then break end
-				if not checkInView(self, item) then
-					break
-				end
-				self._tailIndex = self._tailIndex + 1
-				item:addChild(self:_loadSource(self._tailIndex))
-			until false
-			repeat -- remove head
-				item = ListView.getItem(self, self._headIndex - 1)
-				if checkInView(self, item) then
-					break
-				end
-				item:removeAllChildren()
-				self:_unloadSource(self._headIndex)
-				self._headIndex = self._headIndex + 1
-			until false
-		else -- tail out of view, jump scrolling
-			-- remove all
-			for i = self._headIndex, self._tailIndex do
-				item = ListView.getItem(self, i - 1)
-				item:removeAllChildren()
-				self:_unloadSource(i)
-				self._headIndex = nil
-			end
-			-- find new head and tail
-			repeat
-				item = ListView.getItem(self, self._tailIndex)
-				if nil == item then break end
-				if checkInView(self, item) then
-					self._tailIndex = self._tailIndex + 1
-					item:addChild(self:_loadSource(self._tailIndex))
-					if nil == self._headIndex then
-						self._headIndex = self._tailIndex
-					end
-				else
-					if self._headIndex then
-						break
-					else
-						self._tailIndex = self._tailIndex + 1
-					end
-				end
-			until false
-		end
-	else -- not isForward
-		item = ListView.getItem(self, self._headIndex - 1)
-		if checkInView(self, item) then -- head in view
-			repeat -- add head
-				item = ListView.getItem(self, self._headIndex - 2)
-				if nil == item then break end
-				if not checkInView(self, item) then
-					break
-				end
-				self._headIndex = self._headIndex - 1
-				item:addChild(self:_loadSource(self._headIndex))
-			until false
-			repeat -- remove tail
-				item = ListView.getItem(self, self._tailIndex - 1)
-				if checkInView(self, item) then
-					break
-				end
-				item:removeAllChildren()
-				self:_unloadSource(self._tailIndex)
-				self._tailIndex = self._tailIndex - 1
-			until false
-		else -- head out of view, jump scrolling
-			-- remove all
-			for i = self._headIndex, self._tailIndex do
-				item = ListView.getItem(self, i - 1)
-				item:removeAllChildren()
-				self:_unloadSource(i)
-				self._tailIndex = nil
-			end
-			-- find new head and tail
-			repeat
-				item = ListView.getItem(self, self._headIndex - 2)
-				if nil == item then break end
-				if checkInView(self, item) then
-					self._headIndex = self._headIndex - 1
-					item:addChild(self:_loadSource(self._headIndex))
-					if nil == self._tailIndex then
-						self._tailIndex = self._headIndex
-					end
-				else
-					if self._tailIndex then
-						break
-					else
-						self._headIndex = self._headIndex - 1
-					end
-				end
-			until false
-		end
-	end
+function TableViewCell:setIndex(index)
+	self.index = index
 end
 
---[[ external method, must be called at least once.
-self: listview
-index: make sure item of index is in viewRect, auto load and unload items.
-]]--
-local function jumpTo(self, index)
-	self:stopAllActions()
-	self:performWithDelay(function()
-		local direction = self:getDirection()
-		local size = self:getContentSize()
-
-		local checkTab = {}
-		local items = ListView.getItems(self)
-		for i = self._headIndex, self._tailIndex do
-			checkTab[i] = false
-		end
-		-- adjust scroll view
-		local item = items[index]
-		assert(index >= 1 and index <= #items, "Wrong index range")
-
-		if 1 == direction then -- VERTICAL
-			local destY = size.height - item:getPositionY() - item:getContentSize().height
-			destY = math.min(0, destY)
-			self:getInnerContainer():setPositionY(destY)
-			self._innerP = destY
-		else
-			local destX = size.width - item:getPositionX() - item:getContentSize().width
-			destX = math.min(0, destX)
-			self:getInnerContainer():setPositionX(destX)
-			self._innerP = destX
-		end
-		-- find items in viewRect
-		for i = index, 1, -1 do
-			if not checkInView(self, items[i]) then
-				break
-			end
-			self._headIndex = i
-		end
-		for i = index, #items do
-			if not checkInView(self, items[i]) then
-				break
-			end
-			self._tailIndex = i
-		end
-		-- add new
-		for i = self._headIndex, self._tailIndex do
-			if nil == checkTab[i] then
-				items[i]:addChild(self:_loadSource(i))
-			end
-			checkTab[i] = true
-		end
-		-- remove out of view
-		for i, k in pairs(checkTab) do
-			if false == k then
-				items[i]:removeAllChildren()
-				self:_unloadSource(i)
-			end
-		end
-	end, 0)
+function TableViewCell:getIndex(index)
+	return self.index
 end
 
-local function createDefaultWidget()
-	local layer = ccui.Layout:create()
-	-- layer:setBackGroundColorType(ccui.LayoutBackGroundColorType.solid)
-	-- layer:setBackGroundColor(cc.c3b(0, 0, 255))
-	return layer
+function TableViewCell:reset()
+	self.index = 0
 end
 
--- init default items, _sizeSource() will be use in this stage
-local function initDefaultItems(self, total)
-	local items = ListView.getItems(self)
-	local oldTotal = #items
-	-- remove old items and reset cursor
-	for i = self._headIndex, self._tailIndex do
-		items[i]:removeAllChildren()
-		self:_unloadSource(i)
-	end
-	self._headIndex = 0
-	self._tailIndex = -1
-	self._innerP = nil
-	-- clean defaut widgets
-	ListView.removeAllItems(self)
-	-- size may change, so need to add defaut widgets again
-	for i = 1, total do
-		local widget = createDefaultWidget()
-		widget:setContentSize(self:_sizeSource(i))
-		ListView.pushBackCustomItem(self, widget)
-	end
-end
 
-local function insertRow(self, index)
-	local widget = createDefaultWidget()
-	widget:setContentSize(self:_sizeSource(index))
-	ListView.insertCustomItem(self, widget, index - 1)
 
-	if index > self._tailIndex then
-		return -- no need to change cursor
-	end
+local TableView = class("TableView", function()
+	return ccui.ScrollView:create()
+end)
 
-	if index <= self._headIndex then
-		index = self._headIndex
-	end
-	local item = ListView.getItem(self, index - 1)
-	item:addChild(self:_loadSource(index))
+local TableViewDirection = {
+	none = 0,
+	vertical = 1,
+	horizontal = 2
+}
 
-	self._tailIndex = self._tailIndex + 1
-end
+local TableViewFuncType = {
+	cellSize = "_cellSizeAtIndex",
+	cellNum = "_numberOfCells",
+	cellLoad = "_loadCellAtIndex",
+	cellUnload = "_unloadCellAtIndex"
+}
 
-local function deleteRow(self, index)
-	ListView.removeItem(self, index - 1)
+local TableViewFillOrder = {
+	topToBottom = 1,
+	bottomToTop = 2
+}
 
-	if index > self._tailIndex then
-		return -- no need to change cursor
-	end
+function TableView:ctor(size)
+	self._cellsPos = {}	--记录每个cell的位置
 
-	if index < self._headIndex then
-		self._headIndex = self._headIndex - 1
-	else
-		self:_unloadSource(index)
-	end
+	self._cellsUsed = {} --记录正在使用的cell
+	self._cellsIndex = {} --记录正在使用的cell的index
+	self._cellsFreed = {} --记录当前未使用的cell
 
-	local item = ListView.getItem(self, self._tailIndex - 1)
-	if item then
-		item:addChild(self:_loadSource(self._tailIndex))
-	else
-		self._tailIndex = self._tailIndex - 1
-	end
-end
+	self.direction = TableViewDirection.none
+	self.fillOrder = TableViewFillOrder.topToBottom
 
---[[ convert a ccui.ListView -> TableView
-listview, is a instance of ccui.ListView
-sizeSource = function(self, index)
-	return cc.size(100, 50)
-end
-loadSource = function(self, index)
-	return display.newNode() -- which size is equal to sizeSource(index)
-end
-unloadSource = function(self, index)
-	print("You can unload texture of index here")
-end
-note: listview:addScrollViewEventListener() MUST call after TableView.attachTo()
-]]--
-function TableView.attachTo(listview, sizeSource, loadSource, unloadSource)
-	-- new internal data
-	listview._sizeSource = sizeSource
-	listview._loadSource = function(self, index)
-		local node = loadSource(self, index)
-		node:ignoreAnchorPointForPosition(false)
-		node:setAnchorPoint(cc.p(0, 0))
-		node:pos(0, 0)
-		return node
-	end
-	listview._unloadSource = unloadSource
-
-	-- multiple calls protection
-	if listview._headIndex then
-		return
-	end
-
-	-- check size double of realSize, improve bounce User Experience
-	local size = listview:getContentSize()
-	listview._checkOffsetX = size.width / 2
-	listview._checkOffsetY = size.height / 2
-	listview._checkWidth = size.width * 2
-	listview._checkHeight = size.height * 2
-	listview._headIndex = 0 -- init to defaut cursor
-	listview._tailIndex = -1 -- init to defaut cursor
-	-- hide ccui.ListView 's item methods
-	local function protectInfo ()
-		assert(nil, "The ListView method is protected by TableView")
-	end
-	listview.pushBackDefaultItem = protectInfo
-	listview.insertDefaultItem = protectInfo
-	listview.pushBackCustomItem = protectInfo
-	listview.insertCustomItem = protectInfo
-	listview.removeLastItem = protectInfo
-	listview.removeItem = protectInfo
-	listview.removeAllItems = protectInfo
-	listview.getItem = protectInfo
-	listview.getItems = protectInfo
-	listview.getIndex = protectInfo
-	-- new external mothods
-	listview.jumpTo = jumpTo
-	listview.initDefaultItems = initDefaultItems
-	listview.insertRow = insertRow
-	listview.deleteRow = deleteRow
-
-	-- init event
-	listview:addScrollViewEventListener(function(self, type)
-		if type >= 4 then -- SCROLLING & BOUNCE_XXX
-			-- avoid crash while remove touch node in scrolling event
-			self:performWithDelay(function()
-				scrolling(self)
-			end, 0)
-		end
-		if self._scrollCB then
-			self:_scrollCB(type)
+	self:addEventListener(function (self, type)
+		if type >= 4 then
+			self:_scrollViewDidScroll()
 		end
 	end)
-	listview.addScrollViewEventListener = function(self, cb)
-		self._scrollCB = cb
+	self:setBounceEnabled(true)
+
+	self:init(size)
+end
+
+function TableView:init(size)
+	self:setContentSize(size or cc.size(0, 0))
+	self:_updateCellsPosition()
+	self:_updateContentSize()
+end
+
+function TableView:registerFunc(type, func)
+	local funcName = assert(type, "Invalid func type")
+	self[funcName] = func
+end
+
+function TableView:cellAtIndex(index)
+	if self._cellsIndex[index] then
+		for k,v in pairs(self._cellsUsed) do
+			if v:getIndex() == index then
+				return v, k
+			end
+		end
 	end
 end
 
-return TableView
+function TableView:reloadData()
+	self.direction = TableViewDirection.none
+
+	local cell = table.remove(self._cellsUsed, 1)
+	while cell do
+		cell:setVisible(false)
+		table.insert(self._cellsFreed, cell)
+		cell:reset()
+		cell = table.remove(self._cellsUsed, 1)
+	end
+	self._cellsUsed = {}
+	self._cellsIndex = {}
+
+	self:_updateCellsPosition()
+	self:_updateContentSize()
+
+	if self:_numberOfCells() > 0 then
+		self:_scrollViewDidScroll()
+	end
+end
+
+function TableView:reloadDataInPos()
+	local baseSize = self:getContentSize()
+	local x, y = self:getInnerContainer():getPosition()
+	local beforeSize = self:getInnerContainerSize()
+
+	local cell = table.remove(self._cellsUsed, 1)
+	while cell do
+		cell:setVisible(false)
+		table.insert(self._cellsFreed, cell)
+		cell:reset()
+		cell = table.remove(self._cellsUsed, 1)
+	end
+	self._cellsUsed = {}
+	self._cellsIndex = {}
+
+	self:_updateCellsPosition()
+	self:_updateContentSize()
+
+	local afterSize = self:getInnerContainerSize()
+	if afterSize.width < baseSize.width or afterSize.height < baseSize.height then
+		self:_setInnerContainerInitPos()
+	else
+		local offset = cc.p(x, beforeSize.height - afterSize.height + y)
+		offset = cc.p(math.max(offset.x, baseSize.width - afterSize.width), math.min(0, offset.y))
+		self:getInnerContainer():setPosition(offset)
+	end
+
+	if self:_numberOfCells() > 0 then
+		self:_scrollViewDidScroll()
+	end
+end
+
+function TableView:dequeueCell()
+	return table.remove(self._cellsFreed, 1)
+end
+
+function TableView:setFillOrder(order)
+	if self.fillOrder ~= order then
+		self.fillOrder = order
+		if #self._cellsUsed > 0 then
+			self:reloadData()
+		end
+	end
+end
+
+function TableView:updateCellAtIndex(index)
+	if index <= 0 then
+		return
+	end
+	local cellsCount = self:_numberOfCells()
+	if cellsCount == 0 or index > cellsCount then
+		return
+	end
+	local cell, newIndex = self:cellAtIndex(index)
+	if cell then
+		self:_moveCellOutOfSight(cell, newIndex)
+	end
+	cell = self:_loadCellAtIndex(index)
+	self:_setIndexForCell(index, cell)
+	self:_addCellIfNecessary(cell, index)
+end
+
+function TableView:insertCellAtIndex(index)
+	if index <= 0 then
+		return
+	end
+	local cellsCount = self:_numberOfCells()
+	if cellsCount == 0 or index > cellsCount then
+		return
+	end
+	local cell, newIndex = self:cellAtIndex(index)
+	if cell then
+		for i = newIndex, #self._cellsUsed do
+			cell = self._cellsUsed[i]
+			self:_setIndexForCell(cell:getIndex() + 1, cell)
+			self._cellsIndex[cell:getIndex()] = true
+		end
+	end
+
+	cell = self:_loadCellAtIndex(index)
+	self:_setIndexForCell(index, cell)
+	self:_addCellIfNecessary(cell, index)
+
+	self:_updateCellsPosition()
+	self:_updateContentSize()
+end
+
+function TableView:removeCellAtIndex(index)
+	if index <= 0 then
+		return
+	end
+	local cellsCount = self:_numberOfCells()
+	if cellsCount == 0 or index > cellsCount then
+		return
+	end
+	local cell, newIndex = self:cellAtIndex(index)
+	if cell then
+		self:_moveCellOutOfSight(cell, newIndex)
+		self:_updateCellsPosition()
+		for i = #self._cellsUsed, newIndex, -1 do
+			cell = self._cellsUsed[i]
+			if i == #self._cellsUsed then
+				self._cellsIndex[cell:getIndex()] = nil
+			end
+			self:_setIndexForCell(cell:getIndex() - 1, cell)
+			self._cellsIndex[cell:getIndex()] = true
+		end
+	end
+end
+--------------------------------------------------
+
+function TableView:_scrollViewDidScroll()
+	local cellsCount = self:_numberOfCells()
+	local baseSize = self:getContentSize()
+
+	if cellsCount <= 0 then
+		return
+	end
+	if self._isUsedCelllsDirty then
+		self._isUsedCelllsDirty = false
+		table.sort(self._cellsUsed, function(a, b)
+			return a:getIndex() < b:getIndex()
+		end)
+	end
+
+	local startIdx, endIdx, idx, maxIdx = 0, 0, 0, 0
+	local offset = cc.p(self:getInnerContainer():getPosition())
+	offset = cc.p(-offset.x, -offset.y)
+	maxIdx = math.max(cellsCount, 1)
+	if self.fillOrder == TableViewFillOrder.topToBottom then
+		offset.y = offset.y + baseSize.height
+	end
+	startIdx = self:_indexFromOffset(clone(offset)) or cellsCount
+
+	if self.fillOrder == TableViewFillOrder.topToBottom then
+		offset.y = offset.y - baseSize.height
+	elseif self.fillOrder == TableViewFillOrder.bottomToTop then
+		offset.y = offset.y + baseSize.height
+	end
+	offset.x = offset.x + baseSize.width
+	endIdx = self:_indexFromOffset(clone(offset)) or cellsCount
+
+	if #self._cellsUsed > 0 then --移除顶部节点
+		local cell = self._cellsUsed[1]
+		idx = cell:getIndex()
+		while idx < startIdx do
+			self:_moveCellOutOfSight(cell, 1)
+			if #self._cellsUsed > 0 then
+				cell = self._cellsUsed[1]
+				idx = cell:getIndex()
+			else
+				break
+			end
+		end
+	end
+
+	if #self._cellsUsed > 0 then --移除底部节点
+		local cell = self._cellsUsed[#self._cellsUsed]
+		idx = cell:getIndex()
+		while idx <= maxIdx and idx > endIdx do
+			self:_moveCellOutOfSight(cell, #self._cellsUsed)
+			if #self._cellsUsed > 0 then
+				cell = self._cellsUsed[#self._cellsUsed]
+				idx = cell:getIndex()
+			else
+				break
+			end
+		end
+	end
+
+	for i = startIdx, endIdx do --更新节点
+		if not self._cellsIndex[i] then
+			self:updateCellAtIndex(i)
+			print(i)
+		end
+	end
+end
+
+
+function TableView:_setIndexForCell(index, cell)
+	cell:setAnchorPoint(cc.p(0, 0))
+	cell:setPosition(self:_offsetFromIndex(index))
+	cell:setIndex(index)
+end
+
+function TableView:_moveCellOutOfSight(cell, index)
+	table.insert(self._cellsFreed, table.remove(self._cellsUsed, index))
+	self._cellsIndex[cell:getIndex()] = nil
+	self._isUsedCelllsDirty = true
+	self:_unloadCellAtIndex(cell:getIndex())
+
+	cell:reset()
+	cell:setVisible(false)
+end
+
+function TableView:_addCellIfNecessary(cell, index)
+	cell:setVisible(true)
+	if cell:getParent() ~= self:getInnerContainer() then
+		self:addChild(cell)
+	end
+	table.insert(self._cellsUsed, cell)
+	self._cellsIndex[index] = true
+	self._isUsedCelllsDirty = true
+end
+
+function TableView:_indexFromOffset(offset)
+	local size = self:getInnerContainerSize()
+	if self.fillOrder == TableViewFillOrder.topToBottom then
+		offset.y = size.height - offset.y
+	end
+	local search
+	if self.direction == TableViewDirection.horizontal then
+		search = offset.x
+	else
+		search = offset.y
+	end
+
+	local low = 1
+	local high = self:_numberOfCells()
+	while high >= low do
+		local index = math.floor(low + (high - low) / 2)
+		local cellSatrt = self._cellsPos[index]
+		local cellEnd = self._cellsPos[index + 1]
+		if search >= cellSatrt and search <= cellEnd then
+			return index
+		elseif search < cellSatrt then
+			high = index - 1
+		else
+			low = index + 1
+		end
+	end
+	if low <= 1 then
+		return 1
+	end
+end
+
+function TableView:_offsetFromIndex(index)
+	local offset
+	if self.direction == TableViewDirection.horizontal then
+		offset = cc.p(self._cellsPos[index], 0)
+	else
+		offset = cc.p(0, self._cellsPos[index])
+	end
+	local cellSize = cc.size(self:_cellSizeAtIndex(index))
+	if self.fillOrder == TableViewFillOrder.topToBottom then
+		offset.y = self:getInnerContainerSize().height - offset.y - cellSize.height
+	end
+	return offset
+end
+
+function TableView:_updateContentSize()
+	local baseSize = self:getContentSize()
+	local size = self:getInnerContainerSize()
+	local cellsCount = self:_numberOfCells()
+	local dir = self:getDirection()
+
+	if cellsCount > 0 then
+		local maxPos = self._cellsPos[#self._cellsPos]
+		if dir == TableViewDirection.horizontal then
+			size.width = math.max(baseSize.width, maxPos)
+		else
+			size.height = math.max(baseSize.height, maxPos)
+		end
+	end
+	self:getInnerContainer():setContentSize(size)
+	self:_setInnerContainerInitPos()
+end
+
+function TableView:_setInnerContainerInitPos()
+	local dir = self:getDirection()
+	if self.direction ~= dir then
+		if dir == TableViewDirection.horizontal then
+			self:getInnerContainer():setPosition(cc.p(0, 0))
+		else
+			self:getInnerContainer():setPosition(cc.p(0, self:_getMinContainerOffset().y))
+		end
+		self.direction = dir
+	end
+end
+
+function TableView:_updateCellsPosition()
+	local cellsCount = self:_numberOfCells()
+	self._cellsPos = {}
+
+	if cellsCount > 0 then
+		local curPos = 0
+		local cellSize
+		local dir = self:getDirection()
+		for i = 1, cellsCount do
+			table.insert(self._cellsPos, curPos)
+			cellSize = cc.size(self:_cellSizeAtIndex(i))
+			if dir == TableViewDirection.horizontal then
+				curPos = curPos + cellSize.width
+			else
+				curPos = curPos + cellSize.height
+			end
+		end
+		table.insert(self._cellsPos, curPos) --多添加一个可以用来获取最后一个cell的右侧或者底部
+	end
+end
+
+function TableView:_getMinContainerOffset()
+	local con = self:getInnerContainer()
+	local ap = con:getAnchorPoint()
+	local conSize = con:getContentSize()
+	local baseSize = self:getContentSize()
+	return cc.p(baseSize.width - (1 - ap.x) * conSize.width, baseSize.height - (1 - ap.y) * conSize.height)
+end
+
+--------------------------------------------------
+function TableView:_cellSizeAtIndex(index)
+	return 0, 0
+end
+
+function TableView:_numberOfCells()
+	return 0
+end
+
+function TableView:_loadCellAtIndex(index)
+	local cell = self:dequeueCell()
+	if not cell then
+		return TableViewCell.new()
+	end
+	return cell
+end
+
+function TableView:_unloadCellAtIndex(index)
+end
+
+cc.TableView = TableView
+cc.TableViewCell = TableViewCell
+cc.TableViewFillOrder = TableViewFillOrder
+cc.TableViewDirection = TableViewDirection
+cc.TableViewFuncType = TableViewFuncType

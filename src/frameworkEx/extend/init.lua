@@ -1,6 +1,5 @@
 require("cocosEx")
+require("TableView")
 return {
-    extend = {
-        TableView = require("TableView")
-    }
+    -- extend = {}
 }
