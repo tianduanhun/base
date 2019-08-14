@@ -31,15 +31,17 @@ local TableViewDirection = {
 }
 
 local TableViewFuncType = {
-	cellSize = "_cellSizeAtIndex",
-	cellNum = "_numberOfCells",
-	cellLoad = "_loadCellAtIndex",
-	cellUnload = "_unloadCellAtIndex"
+	cellSize = "_cellSizeAtIndex",		--获取cell size,返回width, height
+	cellNum = "_numberOfCells",			--获取cell数量
+	cellLoad = "_loadCellAtIndex",		--加载cell，必须返回一个cell
+	cellUnload = "_unloadCellAtIndex"	--卸载一个cell时触发
 }
 
 local TableViewFillOrder = {
 	topToBottom = 1,
-	bottomToTop = 2
+	bottomToTop = 2,
+	leftToRight = 3,
+	rightToLeft = 4
 }
 
 function TableView:ctor(size)
@@ -68,11 +70,26 @@ function TableView:init(size)
 	self:_updateContentSize()
 end
 
+--[[
+    @desc: 注册TableViewFuncType定义的方法
+    author:BogeyRuan
+    time:2019-08-14 09:48:58
+    --@type:
+	--@func: 
+    @return:
+]]
 function TableView:registerFunc(type, func)
-	local funcName = assert(type, "Invalid func type")
-	self[funcName] = func
+	assert(self[type], "Invalid func type")
+	self[type] = func
 end
 
+--[[
+    @desc: 获取index位置上的cell，可能为空
+    author:BogeyRuan
+    time:2019-08-14 09:49:28
+    --@index: 
+    @return:
+]]
 function TableView:cellAtIndex(index)
 	if self._cellsIndex[index] then
 		for k,v in pairs(self._cellsUsed) do
@@ -83,6 +100,12 @@ function TableView:cellAtIndex(index)
 	end
 end
 
+--[[
+    @desc: 重新加载
+    author:BogeyRuan
+    time:2019-08-13 18:32:31
+    @return:
+]]
 function TableView:reloadData()
 	self.direction = TableViewDirection.none
 
@@ -104,6 +127,12 @@ function TableView:reloadData()
 	end
 end
 
+--[[
+    @desc: 在尽量不改变位置的情况下重新加载
+    author:BogeyRuan
+    time:2019-08-13 18:32:45
+    @return:
+]]
 function TableView:reloadDataInPos()
 	local baseSize = self:getContentSize()
 	local x, y = self:getInnerContainer():getPosition()
@@ -136,10 +165,23 @@ function TableView:reloadDataInPos()
 	end
 end
 
+--[[
+    @desc: 返回一个闲置的cell，可能为空
+    author:BogeyRuan
+    time:2019-08-13 18:33:26
+    @return:
+]]
 function TableView:dequeueCell()
 	return table.remove(self._cellsFreed, 1)
 end
 
+--[[
+    @desc: 设置填充方向
+    author:BogeyRuan
+    time:2019-08-13 18:33:55
+    --@order: 
+    @return:
+]]
 function TableView:setFillOrder(order)
 	if self.fillOrder ~= order then
 		self.fillOrder = order
@@ -149,6 +191,13 @@ function TableView:setFillOrder(order)
 	end
 end
 
+--[[
+    @desc: 根据index更新cell
+    author:BogeyRuan
+    time:2019-08-13 18:34:37
+    --@index: 
+    @return:
+]]
 function TableView:updateCellAtIndex(index)
 	if index <= 0 then
 		return
@@ -163,9 +212,16 @@ function TableView:updateCellAtIndex(index)
 	end
 	cell = self:_loadCellAtIndex(index)
 	self:_setIndexForCell(index, cell)
-	self:_addCellIfNecessary(cell, index)
+	self:_addCellIfNecessary(cell)
 end
 
+--[[
+    @desc: 在index位置插入
+    author:BogeyRuan
+    time:2019-08-13 18:35:04
+    --@index: 
+    @return:
+]]
 function TableView:insertCellAtIndex(index)
 	if index <= 0 then
 		return
@@ -185,12 +241,19 @@ function TableView:insertCellAtIndex(index)
 
 	cell = self:_loadCellAtIndex(index)
 	self:_setIndexForCell(index, cell)
-	self:_addCellIfNecessary(cell, index)
+	self:_addCellIfNecessary(cell)
 
 	self:_updateCellsPosition()
 	self:_updateContentSize()
 end
 
+--[[
+    @desc: 移除index位置的cell
+    author:BogeyRuan
+    time:2019-08-13 18:35:22
+    --@index: 
+    @return:
+]]
 function TableView:removeCellAtIndex(index)
 	if index <= 0 then
 		return
@@ -203,9 +266,10 @@ function TableView:removeCellAtIndex(index)
 	if cell then
 		self:_moveCellOutOfSight(cell, newIndex)
 		self:_updateCellsPosition()
-		for i = #self._cellsUsed, newIndex, -1 do
+		local cellSize = #self._cellsUsed
+		for i = cellSize, newIndex, -1 do
 			cell = self._cellsUsed[i]
-			if i == #self._cellsUsed then
+			if i == cellSize then
 				self._cellsIndex[cell:getIndex()] = nil
 			end
 			self:_setIndexForCell(cell:getIndex() - 1, cell)
@@ -217,13 +281,13 @@ end
 
 function TableView:_scrollViewDidScroll()
 	local cellsCount = self:_numberOfCells()
-	local baseSize = self:getContentSize()
-
 	if cellsCount <= 0 then
 		return
 	end
-	if self._isUsedCelllsDirty then
-		self._isUsedCelllsDirty = false
+
+	local baseSize = self:getContentSize()
+	if self._isUsedCellsDirty then
+		self._isUsedCellsDirty = false
 		table.sort(self._cellsUsed, function(a, b)
 			return a:getIndex() < b:getIndex()
 		end)
@@ -235,16 +299,22 @@ function TableView:_scrollViewDidScroll()
 	maxIdx = math.max(cellsCount, 1)
 	if self.fillOrder == TableViewFillOrder.topToBottom then
 		offset.y = offset.y + baseSize.height
+	elseif self.fillOrder == TableViewFillOrder.rightToLeft then
+		offset.x = offset.x + baseSize.width
 	end
-	startIdx = self:_indexFromOffset(clone(offset)) or cellsCount
+	startIdx = self:_indexFromOffset(clone(offset)) or maxIdx
 
 	if self.fillOrder == TableViewFillOrder.topToBottom then
 		offset.y = offset.y - baseSize.height
 	elseif self.fillOrder == TableViewFillOrder.bottomToTop then
 		offset.y = offset.y + baseSize.height
 	end
-	offset.x = offset.x + baseSize.width
-	endIdx = self:_indexFromOffset(clone(offset)) or cellsCount
+	if self.fillOrder == TableViewFillOrder.leftToRight then
+		offset.x = offset.x + baseSize.width
+	elseif self.fillOrder == TableViewFillOrder.rightToLeft then
+		offset.x = offset.x - baseSize.width
+	end
+	endIdx = self:_indexFromOffset(clone(offset)) or maxIdx
 
 	if #self._cellsUsed > 0 then --移除顶部节点
 		local cell = self._cellsUsed[1]
@@ -277,7 +347,6 @@ function TableView:_scrollViewDidScroll()
 	for i = startIdx, endIdx do --更新节点
 		if not self._cellsIndex[i] then
 			self:updateCellAtIndex(i)
-			print(i)
 		end
 	end
 end
@@ -292,27 +361,29 @@ end
 function TableView:_moveCellOutOfSight(cell, index)
 	table.insert(self._cellsFreed, table.remove(self._cellsUsed, index))
 	self._cellsIndex[cell:getIndex()] = nil
-	self._isUsedCelllsDirty = true
+	self._isUsedCellsDirty = true
 	self:_unloadCellAtIndex(cell:getIndex())
 
 	cell:reset()
 	cell:setVisible(false)
 end
 
-function TableView:_addCellIfNecessary(cell, index)
+function TableView:_addCellIfNecessary(cell)
 	cell:setVisible(true)
 	if cell:getParent() ~= self:getInnerContainer() then
 		self:addChild(cell)
 	end
 	table.insert(self._cellsUsed, cell)
-	self._cellsIndex[index] = true
-	self._isUsedCelllsDirty = true
+	self._cellsIndex[cell:getIndex()] = true
+	self._isUsedCellsDirty = true
 end
 
 function TableView:_indexFromOffset(offset)
 	local size = self:getInnerContainerSize()
 	if self.fillOrder == TableViewFillOrder.topToBottom then
 		offset.y = size.height - offset.y
+	elseif self.fillOrder == TableViewFillOrder.rightToLeft then
+		offset.x = size.width - offset.x
 	end
 	local search
 	if self.direction == TableViewDirection.horizontal then
@@ -350,6 +421,8 @@ function TableView:_offsetFromIndex(index)
 	local cellSize = cc.size(self:_cellSizeAtIndex(index))
 	if self.fillOrder == TableViewFillOrder.topToBottom then
 		offset.y = self:getInnerContainerSize().height - offset.y - cellSize.height
+	elseif self.fillOrder == TableViewFillOrder.rightToLeft then
+		offset.x = self:getInnerContainerSize().width - offset.x - cellSize.width
 	end
 	return offset
 end
@@ -376,9 +449,17 @@ function TableView:_setInnerContainerInitPos()
 	local dir = self:getDirection()
 	if self.direction ~= dir then
 		if dir == TableViewDirection.horizontal then
-			self:getInnerContainer():setPosition(cc.p(0, 0))
+			if self.fillOrder == TableViewFillOrder.leftToRight then
+				self:getInnerContainer():setPosition(cc.p(0, 0))
+			elseif self.fillOrder == TableViewFillOrder.rightToLeft then
+				self:getInnerContainer():setPosition(cc.p(self:_getMinContainerOffset().x, 0))
+			end
 		else
-			self:getInnerContainer():setPosition(cc.p(0, self:_getMinContainerOffset().y))
+			if self.fillOrder == TableViewFillOrder.topToBottom then
+				self:getInnerContainer():setPosition(cc.p(0, self:_getMinContainerOffset().y))
+			elseif self.fillOrder == TableViewFillOrder.bottomToTop then
+				self:getInnerContainer():setPosition(cc.p(0, 0))
+			end
 		end
 		self.direction = dir
 	end
