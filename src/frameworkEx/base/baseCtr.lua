@@ -32,7 +32,7 @@ end
 
 function BaseCtr:_handler(methodName, ...)
     if methodName and self[methodName] then
-        self[methodName](self, ...)
+        return self[methodName](self, ...)
     else
         print(self.__cname, methodName .. " method does not exist")
     end
