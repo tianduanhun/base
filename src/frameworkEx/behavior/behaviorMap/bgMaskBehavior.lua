@@ -49,8 +49,8 @@ function BgMaskBehavior:addBgMask(object, parent, params)
         layer = cc.LayerColor:create(color):addTo(parent, -1000):align(display.CENTER, cc.pAdd(cc.p(display.cx, display.cy),pos)):size(cc.sizeMul(display.size,2))
     end
     
-    layer:onTouch(function (event)
-        if event.name == "ended" and event.isClick then
+    layer:onTouch(function (event, isClick)
+        if isClick then
             if shieldNode and callback then
                 local size = shieldNode:getContentSize()
                 local pos = shieldNode:convertToWorldSpace(cc.p(0, 0))

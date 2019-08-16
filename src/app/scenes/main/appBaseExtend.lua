@@ -27,6 +27,14 @@ function AppBaseExtend:popView(view)
     self._BaseScene:popView(view)
 end
 
+function AppBaseExtend:getTopView()
+    return self._BaseScene:getTopView()
+end
+
+function AppBaseExtend:popAllView()
+    self._BaseScene:popAllView()
+end
+
 function AppBaseExtend:pushToast(str)
     self._BaseScene:pushToast(str)
 end

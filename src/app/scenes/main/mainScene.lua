@@ -50,15 +50,21 @@ function MainScene:_showView()
     for i = #self._ViewsInfo, 1, -1 do
         local viewInfo = self._ViewsInfo[i]
 
-        if topView and (not topView.isKeep) then
-            viewInfo.view:setVisible(false)
-        else
+        if viewInfo.isFull and not (topView and topView.isFull) then
             viewInfo.view:setVisible(true)
             topView = viewInfo
+        else
+            if topView and ((not topView.isKeep) or topView.isFull) then
+                viewInfo.view:setVisible(false)
+            else
+                viewInfo.view:setVisible(true)
+                topView = viewInfo
+            end
         end
 
         viewInfo.view:setLocalZOrder(i)
     end
+    self._ViewLayer:setVisible(not topView.isFull)
 end
 
 --[[
@@ -69,6 +75,8 @@ end
 	--@params: {
         priority: 优先级，默认为0
         isKeep: 是否保持底部弹窗，默认true
+        isFull: 是否全屏，默认false
+        isSingle: 是否在所有弹窗中只保留一份，默认true
     }
     @return:
 ]]
@@ -77,6 +85,10 @@ function MainScene:pushView(view, params)
     params = checktable(params)
     params.priority = params.priority or 0
     params.isKeep = params.isKeep == nil and true or params.isKeep
+    params.isSingle = params.isSingle == nil and true or params.isSingle
+    if params.isSingle then
+        self:popView(view)
+    end
 
     if view.enterAction and type(view.enterAction) == "function" then
         view:enterAction()
@@ -112,7 +124,7 @@ function MainScene:popView(target)
     end
     if target then
         for i, v in ipairs(self._ViewsInfo) do
-            if v.view == target then
+            if v.view.__cname == target.__cname then
                 index = i
                 break
             end
@@ -136,6 +148,42 @@ function MainScene:popView(target)
             )
         )
     )
+end
+
+--[[
+    @desc: 获取顶部弹窗
+    author:BogeyRuan
+    time:2019-08-16 11:27:38
+    @return:
+]]
+function MainScene:getTopView()
+    if #self._ViewsInfo > 0 then
+        return (self._ViewsInfo[#self._ViewsInfo]).view
+    end
+end
+
+--[[
+    @desc: 移除全部弹窗
+    author:BogeyRuan
+    time:2019-08-16 11:32:22
+    @return:
+]]
+function MainScene:popAllView()
+    for i,v in ipairs(self._ViewsInfo) do
+        if type(v.view.exitAction) == "function" then
+            local delayTime = v.view:exitAction() or 0
+            v.view:runAction(cc.Sequence:create(
+                cc.DelayTime:create(delayTime),
+                cc.CallFunc:create(function()
+                    v.view:removeFromParent()
+                end)
+            ))
+        else
+            v.view:removeFromParent()
+        end
+    end
+    self._ViewsInfo = {}
+    self:_showView()
 end
 -------------------------------------------------POPUP ENDED
 
