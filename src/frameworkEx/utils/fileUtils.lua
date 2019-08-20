@@ -71,4 +71,16 @@ function g_FileUtils.getFullPath(path)
     return FileUtils:fullPathForFilename(path)
 end
 
+--[[
+    @desc: 向文件中写入内容
+    author:BogeyRuan
+    time:2019-08-19 16:16:04
+    --@fullPath:
+	--@data: 
+    @return:
+]]
+function g_FileUtils.writeDataToFile(fullPath, data)
+    return FileUtils:writeStringToFile(data, fullPath)
+end
+
 return g_FileUtils

@@ -1,7 +1,8 @@
 local TemplateCtr = class("TemplateCtr", g_BaseCtr)
 --[[
-local templateInterface, Template = app:getDataModule("template")
-local templateConfig = Template.getConfig()
+local templateDataModule = app:getDataModule("template")
+local templateInterface = templateDataModule.getData()
+local templateConfig = templateDataModule.getConfig()
 ]]
 --{key = funcName}
 TemplateCtr.registerEvents = {}

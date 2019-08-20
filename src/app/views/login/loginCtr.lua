@@ -1,7 +1,8 @@
 local LoginCtr = class("LoginCtr", g_BaseCtr)
 
-local loginInterface, Login = app:getDataModule("login")
-local loginConfig = Login.getConfig()
+local loginDataModule = g_App:getDataModule("login")
+local loginInterface = loginDataModule.getData()
+local loginConfig = loginDataModule.getConfig()
 
 --{key = funcName}
 LoginCtr.registerEvents = {}

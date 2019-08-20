@@ -16,7 +16,7 @@ end
 function AppBaseExtend:getDataModule(moduleName)
     local dataModuleName = "app.data." .. moduleName
     local dataModule = import(dataModuleName)
-    return dataModule.getData(), dataModule
+    return dataModule
 end
 
 function AppBaseExtend:pushView(view, param)
@@ -40,6 +40,7 @@ function AppBaseExtend:pushToast(str)
 end
 
 function AppBaseExtend:run(viewName)
+    g_App = self
     local scene = MainScene.new()
     display.replaceScene(scene)
     self._BaseScene = scene
