@@ -33,10 +33,10 @@ function EventBehavior:doMethod(object, methodName, ...)
         if object[methodName] then
             return object[methodName](object, ...)
         else
-            error(methodName .. " is not exist")
+            print(methodName .. " is not exist")
         end
     else
-        error(methodName .. "is private method")
+        print(methodName .. " is private method or is not exist")
     end
 end
 

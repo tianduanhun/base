@@ -47,7 +47,7 @@ end
 
 --[[
     @desc: 
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 14:25:21
     --@sql:
 	--@func: 查询时每行回调，接受4个参数(udata, cols, values, names)
@@ -64,7 +64,7 @@ end
 
 --[[
     @desc: 创建表
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 11:53:12
     --@tableName: 表名称
     --@params: 各字段
@@ -102,7 +102,7 @@ end
 
 --[[
     @desc: 查询数据
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 14:20:11
     --@tableName: 表名称
 	--@where: 条件，可以多条件 {{key:string, value:string, con:"= >= <= > <"}}
@@ -175,7 +175,7 @@ end
 
 --[[
     @desc: 插入单条数据
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 15:24:54
     --@tableName: 表名称
 	--@data: 数据 {key = value, ...}
@@ -209,7 +209,7 @@ end
 
 --[[
     @desc: 修改已存在数据
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 16:41:08
     --@tableName: 表名称
 	--@where: 条件，可以多条件 {{key:string, value:string, con:"= >= <= > <"}}
@@ -247,7 +247,7 @@ end
 
 --[[
     @desc: 替换数据，之前存在主键相同的数据则更新，不存在则添加
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 16:51:20
     --@tableName: 表名称
 	--@data: 数据 {key = value, ...}
@@ -282,7 +282,7 @@ end
 
 --[[
     @desc: 删除数据
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-01 17:01:17
     --@tableName: 表名称
 	--@where: 条件，可以多条件 {{key:string, value:string, con:"= >= <= > <"}}

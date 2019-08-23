@@ -1,6 +1,6 @@
 --[[
     @desc: 校验为数字
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:59:29
     --@value:
 	--@base: 
@@ -12,7 +12,7 @@ end
 
 --[[
     @desc: 校验为整数
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:59:44
     --@value: 
     @return:
@@ -23,7 +23,7 @@ end
 
 --[[
     @desc: 校验为布尔值
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:59:56
     --@value: 
     @return:
@@ -34,7 +34,7 @@ end
 
 --[[
     @desc: 校验为表
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 16:00:17
     --@value: 
     @return:

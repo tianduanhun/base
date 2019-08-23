@@ -8,16 +8,11 @@ local importModules = {}
 local FileUtils = cc.FileUtils:getInstance()
 FileUtils:addSearchPath("src/")
 
-local cpu = "32"
-if jit and jit.arch == "arm64" then
-	cpu = "64"
-end
-
 local function loadLuaScript(path)
     path = string.gsub(path, "%.", "/")
     local fullPath
     if USE_BYTECODE then
-        fullPath = FileUtils:fullPathForFilename(path .. ".lua" .. cpu)
+        fullPath = FileUtils:fullPathForFilename(path .. ".lua" .. CPU)
     else
         fullPath = FileUtils:fullPathForFilename(path .. ".lua")
     end
@@ -76,7 +71,7 @@ function import(path)
 end
 
 function unimport(path)
-    assert(path and path ~= "", "The path is empty")
+    assert(type(path) == "string" and path ~= "", "The path is empty")
     path = string.gsub(path, "%.", "/")
 
     local temp = {}

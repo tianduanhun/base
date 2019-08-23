@@ -8,7 +8,7 @@ BgMaskBehavior.exportFuncs = {
 
 --[[
     @desc: 
-    author:BogeyRuan
+    author:Bogey
     time:2019-07-04 10:15:20
     --@object: 
 	--@parent: 要加载背景的节点

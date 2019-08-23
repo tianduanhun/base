@@ -20,3 +20,9 @@ USE_BYTECODE = false
 
 -- use bugly
 USE_BUGLY = false
+
+-- cpu 32 or 64
+CPU = "32"
+if jit and jit.arch == "arm64" then
+    CPU = "64"
+end

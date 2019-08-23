@@ -12,6 +12,7 @@ function LoginCtr:onCreate(...)
 end
 
 function LoginCtr:onDestroy()
+    loginInterface:doMethod("removeObserver", self)
 end
 --------------------------------------------------
 function LoginCtr:onLoginNotify(opcode, bool, msg, data)

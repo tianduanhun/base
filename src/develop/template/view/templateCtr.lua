@@ -12,6 +12,7 @@ function TemplateCtr:onCreate(...)
 end
 
 function TemplateCtr:onDestroy()
+--[[    templateInterface:doMethod("removeObserver", self)]]
 end
 --------------------------------------------------
 --[[function TemplateCtr:onTemplateNotify(opcode, bool, msg, data)

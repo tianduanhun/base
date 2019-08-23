@@ -3,7 +3,7 @@ local g_FileUtils = {}
 local FileUtils = cc.FileUtils:getInstance()
 --[[
     @desc: 判断文件夹是否存在
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-25 17:23:50
     --@dir: 
     @return:
@@ -14,7 +14,7 @@ end
 
 --[[
     @desc: 创建文件夹
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-25 17:23:41
     --@dir: 
     @return:
@@ -25,7 +25,7 @@ end
 
 --[[
     @desc: 保证文件夹存在
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-25 17:23:32
     --@dir: 
     @return:
@@ -38,7 +38,7 @@ end
 
 --[[
     @desc: 判断文件是否存在
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-25 17:23:50
     --@dir: 
     @return:
@@ -49,7 +49,7 @@ end
 
 --[[
     @desc: 获取文件内容
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-26 11:28:34
     --@path: 
     @return:
@@ -62,7 +62,7 @@ end
 
 --[[
     @desc: 获取给定路径的全路径
-    author:BogeyRuan
+    author:Bogey
     time:2019-02-27 14:58:47
     --@path: 
     @return:
@@ -73,7 +73,7 @@ end
 
 --[[
     @desc: 向文件中写入内容
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-19 16:16:04
     --@fullPath:
 	--@data: 

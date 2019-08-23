@@ -69,7 +69,7 @@ end
 
 --[[
     @desc: 
-    author:{author}
+    author:Bogey
     time:2019-02-25 15:35:46
     --@view:
 	--@params: {
@@ -112,7 +112,7 @@ end
 
 --[[
     @desc: 移除顶层弹窗
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-30 17:57:27
     --@[target]: 可选参数，需要弹出的层
     @return:
@@ -152,7 +152,7 @@ end
 
 --[[
     @desc: 获取顶部弹窗
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-16 11:27:38
     @return:
 ]]
@@ -164,7 +164,7 @@ end
 
 --[[
     @desc: 移除全部弹窗
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-16 11:32:22
     @return:
 ]]

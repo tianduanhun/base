@@ -20,7 +20,7 @@ end
 
 --[[
     @desc: 根据点返回三次样条曲线
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-21 14:38:56
     --@points: 
     @return:

@@ -1,6 +1,6 @@
 --[[
     @desc: 判断字段是否为空
-    author:{author}
+    author:Bogey
     time:2019-02-12 14:55:00
     --@str: 要判断的字段
     @return: 布尔值
@@ -14,7 +14,7 @@ end
 
 --[[
     @desc: 将字符串的第一个字符转为大写，返回结果
-    author:BogeyRuan
+    author:Bogey
     time:2019-03-27 17:43:03
     --@input: 
     @return:
@@ -25,7 +25,7 @@ end
 
 --[[
     @desc: 将字符串的第一个字符转为小写，返回结果
-    author:BogeyRuan
+    author:Bogey
     time:2019-04-11 10:35:48
     --@input: 
     @return:
@@ -36,7 +36,7 @@ end
 
 --[[
     @desc: 拆分文字
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:51:19
     --@input:
 	--@delimiter: 
@@ -58,7 +58,7 @@ end
 
 --[[
     @desc: 根据传入的成对的字符串拆分文字
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-17 11:04:07
     --@str: 要拆分的文字
 	--@config: 成对的字符串集合，如{"#*", "()"}
@@ -117,7 +117,7 @@ end
 
 --[[
     @desc: 数字转为ASCII码对应的字符串
-    author:BogeyRuan
+    author:Bogey
     time:2019-07-11 14:56:19
     --@num: 
     --@long: 转为多少个字节的字符，默认为动态长度
@@ -147,7 +147,7 @@ end
 
 --[[
     @desc: ASCII码对应的字符串转为数字
-    author:BogeyRuan
+    author:Bogey
     time:2019-07-11 15:49:03
     --@str: 
     @return:
@@ -163,7 +163,7 @@ end
 
 --[[ 去除头尾空格
     @desc: 
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:51:56
     --@input: 
     @return:
@@ -175,7 +175,7 @@ end
 
 --[[
     @desc: 计算字符串utf8文本长度
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:52:31
     --@input: 
     @return:
@@ -201,7 +201,7 @@ end
 
 --[[
     @desc: 添加千分符
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:53:04
     --@num: 
     @return:
@@ -218,7 +218,7 @@ end
 
 --[[
     @desc: 数字转中文数字
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-17 14:41:49
     --@num: 
     @return:

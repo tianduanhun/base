@@ -10,10 +10,6 @@ local extTmpName = "updateTemp"
 local writablePath = FileUtils:getWritablePath() .. "files/"
 local extPath = writablePath .. extName .. "/"
 local extTmp = writablePath .. extTmpName .. "/"
-local cpu = "32"
-if jit.arch == "arm64" then
-	cpu = "64"
-end
 
 -- ********** internal function ********
 local function copyFile(src, dest)
@@ -50,7 +46,7 @@ end
 local function isNeedDownload(name, md5)
 	-- check game code files is need for this device
 	if string.sub(name, #name - 5, #name - 3) == ".lua" then
-		if string.sub(name, #name - 2) ~= cpu then
+		if string.sub(name, #name - 2) ~= CPU then
 			return false
 		end
     end
@@ -189,10 +185,6 @@ local function doUpdate(url, callback, info)
 			FileUtils:removeDirectory(extPath)
 			FileUtils:renameFile(writablePath, extTmpName, extName)
 			FileUtils:purgeCachedEntries() -- clear filename search cache
-            -- reload game.zip, purgeCachedData
-			-- for _, zip in ipairs(info.packages) do
-			-- 	cc.LuaLoadChunksFromZIP(zip .. cpu .. ".zip")
-			-- end
 			cc.Director:getInstance():purgeCachedData()
 			-- notify to start play scene
 			app.__UpdateInited = nil
@@ -334,10 +326,6 @@ function Updater.init(sceneName, headUrl, callback)
 
 	-- let the first frame display, and avoid to replaceScene in the scene ctor(BUG)
 	scheduler.performWithDelayGlobal(function()
-		-- load chunks
-		-- for _, zip in ipairs(data.packages) do
-		-- 	cc.LuaLoadChunksFromZIP(zip .. cpu .. ".zip")
-		-- end
 		print("== restarting scene")
 		app:enterScene(sceneName)
 	end, 0)

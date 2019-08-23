@@ -72,7 +72,7 @@ end
 
 --[[
     @desc: 注册TableViewFuncType定义的方法
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-14 09:48:58
     --@type:
 	--@func: 
@@ -85,7 +85,7 @@ end
 
 --[[
     @desc: 获取index位置上的cell，可能为空
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-14 09:49:28
     --@index: 
     @return:
@@ -102,7 +102,7 @@ end
 
 --[[
     @desc: 重新加载
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:32:31
     @return:
 ]]
@@ -131,7 +131,7 @@ end
 
 --[[
     @desc: 在尽量不改变位置的情况下重新加载
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:32:45
     @return:
 ]]
@@ -175,7 +175,7 @@ end
 
 --[[
     @desc: 返回一个闲置的cell，可能为空
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:33:26
     @return:
 ]]
@@ -185,7 +185,7 @@ end
 
 --[[
     @desc: 设置填充方向
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:33:55
     --@order: 
     @return:
@@ -201,7 +201,7 @@ end
 
 --[[
     @desc: 根据index更新cell
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:34:37
     --@index: 
     @return:
@@ -225,7 +225,7 @@ end
 
 --[[
     @desc: 在index位置插入
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:35:04
     --@index: 
     @return:
@@ -257,7 +257,7 @@ end
 
 --[[
     @desc: 移除index位置的cell
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-13 18:35:22
     --@index: 
     @return:

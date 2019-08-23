@@ -1,6 +1,6 @@
 --[[
     @desc: 判断表是否为空
-    author:{author}
+    author:Bogey
     time:2019-02-12 14:59:21
     --@tb: 
     @return:
@@ -14,7 +14,7 @@ end
 
 --[[
     @desc: 获取表长度
-    author:BogeyRuan
+    author:Bogey
     time:2019-08-12 15:54:54
     --@t: 
     @return:
@@ -29,7 +29,7 @@ end
 
 --[[
     @desc: 获取表里指定字段的所有值
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-17 15:33:28
     --@hashtable:
 	--@key: 
@@ -47,7 +47,7 @@ end
 
 --[[
     @desc: 顺序遍历不连续hash表
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-17 15:37:25
     --@tb: 
     @return: 迭代器
@@ -67,7 +67,7 @@ end
 
 --[[
     @desc: 返回表内最大的值
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-21 12:18:22
     --@tb: 
     @return:
@@ -85,7 +85,7 @@ end
 
 --[[
     @desc: 返回表内最小的值
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-21 12:18:40
     --@tb: 
     @return:
@@ -103,7 +103,7 @@ end
 
 --[[
     @desc: 返回表里的最大最小值
-    author:BogeyRuan
+    author:Bogey
     time:2019-06-25 16:16:22
     --@tb: 
     @return:
@@ -124,7 +124,7 @@ end
 
 --[[
     @desc: 用B表去填充A表
-    author:BogeyRuan
+    author:Bogey
     time:2019-07-09 10:26:28
     --@tbA:
 	--@tbB: 
