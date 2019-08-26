@@ -3,8 +3,8 @@ local BaseView = class("BaseView", function()
 end)
 
 function BaseView:ctor(...)
+    self:bindCtr(...)   --控制器优先于界面初始化
     self:_init()
-    self:bindCtr(...)
     self:onCreate(...)
 end
 
@@ -21,9 +21,9 @@ function BaseView:_init()
 end
 
 function BaseView:onCleanup()
-    self:unBindAllBehavior()
     self._Ctr:onCleanup()
     self._Ctr = nil
+    self:unBindAllBehavior()
     self:onDestroy()
 end
 

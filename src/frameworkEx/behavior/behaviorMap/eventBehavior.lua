@@ -3,7 +3,8 @@ local EventBehavior = class("EventBehavior", g_BaseBehavior)
 EventBehavior.exportFuncs = {
     "registerEvent",
     "unRegisterEvent",
-    "doMethod"
+    "doMethod",
+    "doMethodByKey"
 }
 
 function EventBehavior:registerEvent(object)
@@ -30,14 +31,20 @@ end
 function EventBehavior:doMethod(object, methodName, ...)
     local funcs = checktable(object.exportFuncs)
     if isPublicMethod(funcs, methodName) then
-        if object[methodName] then
+        if type(object[methodName]) == "function" then
             return object[methodName](object, ...)
         else
-            print(methodName .. " is not exist")
+            error(methodName .. " is not exist")
         end
     else
-        print(methodName .. " is private method or is not exist")
+        error(methodName .. " is private method or is not exist")
     end
+end
+
+function EventBehavior:doMethodByKey(object, keyOfMethod, ...)
+    local funcs = checktable(object.exportFuncs)
+    local methodName = funcs[keyOfMethod]
+    self:doMethod(object, methodName, ...)
 end
 
 return EventBehavior

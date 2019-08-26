@@ -13,7 +13,10 @@ function BaseData:destroy()
 end
 --------------------------------------------------
 BaseData.registerEvents = {}
-BaseData.exportFuncs = {}
+BaseData.exportFuncs = {
+    bind = "addObserver",         --绑定这个数据接口时需要调用的方法
+    unBind = "removeObserver",    --解绑时需要调用
+}
 
 function BaseData:ctor()
     self:_init()
@@ -30,12 +33,13 @@ function BaseData:_init()
     self:bindBehavior(g_BehaviorMap.eventBehavior)
     self:registerEvent()
     self:bindBehavior(g_BehaviorMap.observerBehavior)
+    table.fill(self.exportFuncs, self.super.exportFuncs)
 end
 
 function BaseData:onCleanup()
     self:unRegisterEvent()
-    self:unBindAllBehavior()
     self:removeAllObserver()
+    self:unBindAllBehavior()
     self:onDestroy()
 end
 

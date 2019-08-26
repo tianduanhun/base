@@ -6,10 +6,7 @@ local templateData = require("data.templateData"):getInterface()
 
 --{key = funcName}
 TemplateInterface.registerEvents = {}
-TemplateInterface.exportFuncs = {
-    "addObserver",
-    "removeObserver",
-}
+TemplateInterface.exportFuncs = {}
 
 function TemplateInterface:onCreate()
     self:setNotifyFuncName("onTemplateNotify")

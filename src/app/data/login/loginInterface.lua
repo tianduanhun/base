@@ -9,8 +9,6 @@ LoginInterface.registerEvents = {
     [pbConfig.method.LOGIN] = "onResponseLogin"
 }
 LoginInterface.exportFuncs = {
-    "addObserver",
-    "removeObserver",
     "requestLogin"
 }
 

@@ -30,7 +30,7 @@ end
 function g_PbManager.register(config)
     config = checktable(config)
     for k, v in pairs(config) do
-        if g_PbManager.config[k] then
+        if g_PbManager.config[k] and not table.equal(g_PbManager.config[k], v) then
             error("The configured key value already exists : " .. k)
         end
         g_PbManager.config[k] = v
