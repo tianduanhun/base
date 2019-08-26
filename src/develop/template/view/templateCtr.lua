@@ -4,7 +4,7 @@ local TemplateCtr = class("TemplateCtr", g_BaseCtr)
 TemplateCtr.registerEvents = {}
 
 function TemplateCtr:onCreate(...)
---[[    self:bindDataSource("template")]]
+--[[    self:bindDataModule("template")]]
 end
 
 function TemplateCtr:onDestroy()

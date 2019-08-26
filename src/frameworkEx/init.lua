@@ -1,7 +1,7 @@
 local CURRENT_MODULE_NAME = ...
 CURRENT_MODULE_NAME = string.sub(CURRENT_MODULE_NAME, 1, -6)
 
-_require = clone(require)
+_require = require
 -- 记录加载的模块
 local importModules = {}
 

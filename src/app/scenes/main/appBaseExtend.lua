@@ -44,8 +44,8 @@ function AppBaseExtend:run(viewName)
     local scene = MainScene.new()
     display.replaceScene(scene)
     self._BaseScene = scene
-    unimport("app.data")
-    unimport("app.views")
+    -- unimport("app.data")
+    -- unimport("app.views")
 
     -- 必须延迟一帧加载
     g_Scheduler.performWithDelayGlobal(function()

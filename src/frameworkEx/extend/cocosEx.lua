@@ -12,7 +12,6 @@ end
     @return:
 ]]
 function cc.Node:onTouch(func, isSwallow)
-    if isSwallow == nil then isSwallow = false end
     self:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
         if event.name == "began" then
             local result = func(event)
@@ -31,7 +30,9 @@ function cc.Node:onTouch(func, isSwallow)
         end
     end)
     self:setTouchEnabled(true)
-    self:setTouchSwallowEnabled(isSwallow)
+    if type(isSwallow) == "boolean" then
+        self:setTouchSwallowEnabled(isSwallow)
+    end
 end
 
 --[[

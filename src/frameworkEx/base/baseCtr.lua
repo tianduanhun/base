@@ -49,8 +49,8 @@ function BaseCtr:doView(methodName, ...)
     end
 end
 
--- 绑定数据源，绑定之后在整个模块内都可以使用
-function BaseCtr:bindDataSource(moduleName)
+-- 绑定数据模块，绑定之后在整个模块内都可以使用
+function BaseCtr:bindDataModule(moduleName)
     local dataModule = g_App:getDataModule(moduleName)
 
     moduleName =  string.upperFirst(moduleName)

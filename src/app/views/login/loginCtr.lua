@@ -4,7 +4,7 @@ local LoginCtr = class("LoginCtr", g_BaseCtr)
 LoginCtr.registerEvents = {}
 
 function LoginCtr:onCreate(...)
-    self:bindDataSource("login")
+    self:bindDataModule("login")
 end
 
 function LoginCtr:onDestroy()
