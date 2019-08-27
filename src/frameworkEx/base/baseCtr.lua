@@ -57,7 +57,7 @@ function BaseCtr:bindDataModule(moduleName)
     local env = getfenv(self.onCreate)
     env[moduleName .. "Config"] = dataModule.getConfig()
     env[moduleName .. "Interface"] = dataModule.getData()
-    self._dataModules[moduleName] = {moduleName .. "Config", moduleName .. "Interface"}
+    self._dataModules[moduleName] = true
 
     env[moduleName .. "Interface"]:doMethodByKey("bind", self)
 end
@@ -65,11 +65,12 @@ end
 function BaseCtr:unBindAllDataSource()
     local env = getfenv(self.onCreate)
     for k,v in pairs(self._dataModules) do
-        if env[v[2]] and env[v[2]].doMethodByKey then
-            env[v[2]]:doMethodByKey("unBind", self)
+        local dataInterface = env[k .. "Interface"]
+        if dataInterface and dataInterface.doMethodByKey then
+            dataInterface:doMethodByKey("unBind", self)
         end
-        env[v[1]] = nil
-        env[v[2]] = nil
+        env[dataInterface] = nil
+        env[k .. "Config"] = nil
     end
     self._dataModules = {}
 end
