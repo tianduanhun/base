@@ -44,7 +44,7 @@ end
 function EventBehavior:doMethodByKey(object, keyOfMethod, ...)
     local funcs = checktable(object.exportFuncs)
     local methodName = funcs[keyOfMethod]
-    self:doMethod(object, methodName, ...)
+    return self:doMethod(object, methodName, ...)
 end
 
 return EventBehavior

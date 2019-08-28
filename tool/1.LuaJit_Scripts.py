@@ -91,9 +91,11 @@ def packageScript(projectDir, mode):
     if os.path.exists(srcBKPath):
         shutil.rmtree(srcBKPath)
     #os.mkdir(srcBKPath)
+    
     shutil.copytree(luaRoot, srcBKPath)
+    shutil.rmtree(luaRoot)
 
-    jitSrcPath = joinDir(projectDir, "src_jit")
+    jitSrcPath = joinDir(projectDir, "src")
     if not os.path.exists(jitSrcPath):
         os.mkdir(jitSrcPath)
 
@@ -101,7 +103,7 @@ def packageScript(projectDir, mode):
     initJitPath(mode)
 
     print "====> start."
-    copyDir(luaRoot, jitSrcPath, mode)
+    copyDir(srcBKPath, jitSrcPath, mode)
     print "====> ended."
 
 if __name__ == "__main__":

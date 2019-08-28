@@ -99,7 +99,7 @@ def joinDir(root, *dirs):
     return root
 
 def checkFileExt(path):
-    binExt = [".ogg", ".zip", ".jpg", ".jpeg", ".png", ".pvr", ".ccz", ".bmp", ".tmx", ".plist", ".lua"]
+    binExt = [".ogg", ".zip", ".jpg", ".jpeg", ".png", ".pvr", ".ccz", ".bmp", ".tmx", ".plist", ".lua", ".lua32", ".lua64"]
     ext = os.path.splitext(path)[1]
     ext = ext.lower()
     return ext in binExt
@@ -135,21 +135,28 @@ def copyDir(src, dest, encodeSign, encodeKey):
 
 def encodeRes(projectDir, encodeSign, encodeKey):
     print "====> Checking dir."
-    srcPath = joinDir(projectDir, "src_jit")
-    xtSrcPath = joinDir(projectDir, "src_xt")
+    srcPath = joinDir(projectDir, "src")
     if not os.path.exists(srcPath):
         srcPath = joinDir(projectDir, "src")
-    
+
     if not os.path.exists(srcPath):
         print "Error: %s is not exists" %(srcPath)
         sys.exit(-2)
 
+    srcBKPath = joinDir(projectDir, "src_jit")
+    if os.path.exists(srcBKPath):
+        shutil.rmtree(srcBKPath)
+    #os.mkdir(srcBKPath)
+    shutil.copytree(srcPath, srcBKPath)
+    shutil.rmtree(srcPath)
+
+    xtSrcPath = joinDir(projectDir, "src")
     if os.path.exists(xtSrcPath):
         shutil.rmtree(xtSrcPath)
     os.mkdir(xtSrcPath)
 
     print "====> Start encoding src."
-    copyDir(srcPath, xtSrcPath, encodeSign, encodeKey)
+    copyDir(srcBKPath, xtSrcPath, encodeSign, encodeKey)
     print "====> encodered src:%s" %(xtSrcPath)
     print "====> Done."
 
