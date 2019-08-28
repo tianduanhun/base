@@ -1,6 +1,6 @@
 require("cocosEx")
 require("TableView")
--- require("shader.shader")
+require("shader.shader")
 return {
     -- extend = {}
 }

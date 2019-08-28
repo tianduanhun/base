@@ -45,7 +45,7 @@ end
     time:2019-05-15 14:26:45
     --@node: 要变模糊的节点
     --@cascadeChildren: 是否级联子节点
-    --@level: 模糊级别，尽量不要超过5
+    --@level: 模糊级别，尽量不要超过3
     @return:
 ]]
 function display.makeBlur(node, cascadeChildren, level)
@@ -60,9 +60,9 @@ function display.makeBlur(node, cascadeChildren, level)
         else
             local size = node:getContentSize()
             if size.width > 0 and size.height > 0 then
-                local resolution = cc.p(size.width, size.height)
                 level = level or 1
                 assert(level > 0, "level must be greater than zero")
+                local resolution = cc.pMul(cc.p(size.width, size.height), 0.25)
                 local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/GaussianBlur"))
                 local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
                 glProgramState:setUniformVec2("resolution" , resolution)
@@ -96,6 +96,33 @@ function display.makeGray(node, cascadeChildren)
                 cc.GLProgramCache:getInstance():addGLProgram(glProgram, "Gray")
             end
             local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+            node:setGLProgramState(glProgramState)
+        end
+    end
+end
+
+--[[
+    @desc: 渲染为圆角
+    author:Bogey
+    time:2019-08-28 11:32:04
+    --@node:
+	--@cascadeChildren:
+	--@level: 取值0~1之间
+    @return:
+]]
+function display.makeCircle(node, cascadeChildren, level)
+    local nodes = {}
+    getRealNodes(node, nodes, cascadeChildren)
+    for _, node in pairs(nodes) do
+        if tolua.type(node) == "cc.Label" then
+            local displayNode = display.captureNode(node)
+            display.makeCircle(displayNode)
+            node:setDisplayNode(displayNode)
+        else
+            level = level or 1
+            local glProgram = cc.GLProgram:createWithByteArrays(g_FileUtils.getFileContent(PKGPATH .. "shader/Shader_PositionTextureColor_noMVP"), g_FileUtils.getFileContent(PKGPATH .. "shader/CirclePortait"))
+            local glProgramState = cc.GLProgramState:getOrCreateWithGLProgram(glProgram)
+            glProgramState:setUniformFloat("u_edge", level / 2)
             node:setGLProgramState(glProgramState)
         end
     end
