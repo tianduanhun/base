@@ -20,7 +20,8 @@
 /files
 /src/.vscode
 /src_jit
-/src_xt
+/src_bk
 
 UserDefault.xml
 debug.log
+base.code-workspace

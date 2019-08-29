@@ -15,7 +15,7 @@ function __G__TRACKBACK__(errorMessage)
     if debugXpCall then
         debugXpCall()
     end
-    if USE_BUGLY and buglyReportLuaException then
+    if USE_BUGLY then
         buglyReportLuaException(tostring(errorMessage), debug.traceback("", 2))
     end
 end

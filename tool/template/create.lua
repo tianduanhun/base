@@ -1,7 +1,7 @@
 require("createUtils")
 
 local params = {
-    modName = "login",
+    modName = "main",
     isUseView = true, --是否使用界面
 
     isUseData = true --是否使用数据模块
@@ -30,7 +30,7 @@ local function create()
     -- 界面
     if params.isUseView then
         -- 目录结构
-        local modDir = "../../app/views/" .. string.lower(params.modName) .. "/"
+        local modDir = "../../src/app/views/" .. string.lower(params.modName) .. "/"
         io.mkdir(modDir)
 
         -- 基础文件
@@ -57,7 +57,7 @@ local function create()
     
     -- 数据模块
     if params.isUseData then
-        local modDir = "../../app/data/" .. string.lower(params.modName) .. "/"
+        local modDir = "../../src/app/data/" .. string.lower(params.modName) .. "/"
         io.mkdir(modDir)
 
         -- 基础文件
