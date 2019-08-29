@@ -1,0 +1,29 @@
+<Solution>
+  <PropertyGroup Name="base" Version="3.10.0.0" Type="CocosStudio" />
+  <SolutionFolder>
+    <Group ctype="ResourceGroup">
+      <RootFolder Name=".">
+        <Folder Name="app">
+          <Folder Name="common">
+            <Folder Name="res">
+              <Folder Name="buttons" />
+              <Folder Name="fonts">
+                <TTF Name="XianEr.ttf" />
+              </Folder>
+            </Folder>
+          </Folder>
+          <Folder Name="scenes">
+            <Folder Name="update">
+              <Folder Name="res" />
+            </Folder>
+          </Folder>
+          <Folder Name="views">
+            <Folder Name="login">
+              <Folder Name="res" />
+            </Folder>
+          </Folder>
+        </Folder>
+      </RootFolder>
+    </Group>
+  </SolutionFolder>
+</Solution>
