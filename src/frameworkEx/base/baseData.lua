@@ -47,4 +47,12 @@ end
 function BaseData:onDestroy()
 end
 
+function BaseData:doMethod()
+    print("Behavior is already drop")
+end
+
+function BaseData:doMethodByKey()
+    print("Behavior is already drop")
+end
+
 return BaseData

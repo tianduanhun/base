@@ -45,7 +45,7 @@ BehaviorExtend = function(object)
         self[methodName] = handler(behavior, behavior[methodName])
     end
 
-    function object:unBindMethod(behavior, methodName)
+    function object:unBindMethod(methodName)
         if not self._originMethods then
             self._originMethods = {}
         end
@@ -64,7 +64,7 @@ BehaviorExtend = function(object)
         if originMethod and type(originMethod) == "function" then
             originMethod(self, ...)
         else
-            error("Not such method name:" .. methodName)
+            error("Not such origin method name:" .. methodName)
         end
     end
 

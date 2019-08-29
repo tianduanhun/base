@@ -14,7 +14,7 @@ end
 --组件解绑对象
 function BaseBehavior:unBind(object)
     for i,v in ipairs(self.exportFuncs) do
-        object:unBindMethod(self, v)
+        object:unBindMethod(v)
     end
 end
 

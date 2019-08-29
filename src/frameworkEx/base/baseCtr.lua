@@ -25,7 +25,7 @@ end
 function BaseCtr:onCleanup()
     self._UI = nil
     self:unRegisterEvent()
-    self:unBindAllDataSource()
+    self:unBindAllDataModule()
     self:unBindAllBehavior()
     self:onDestroy()
 end
@@ -56,21 +56,17 @@ function BaseCtr:bindDataModule(moduleName)
     moduleName =  string.upperFirst(moduleName)
     local env = getfenv(self.onCreate)
     env[moduleName .. "Config"] = dataModule.getConfig()
-    env[moduleName .. "Interface"] = dataModule.getData()
+    env[moduleName .. "Interface"] = dataModule.getInterface()
     self._dataModules[moduleName] = true
 
     env[moduleName .. "Interface"]:doMethodByKey("bind", self)
 end
 
-function BaseCtr:unBindAllDataSource()
+function BaseCtr:unBindAllDataModule()
     local env = getfenv(self.onCreate)
     for k,v in pairs(self._dataModules) do
         local dataInterface = env[k .. "Interface"]
-        if dataInterface and dataInterface.doMethodByKey then
-            dataInterface:doMethodByKey("unBind", self)
-        end
-        env[dataInterface] = nil
-        env[k .. "Config"] = nil
+        dataInterface:doMethodByKey("unBind", self)
     end
     self._dataModules = {}
 end

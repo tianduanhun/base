@@ -1,5 +1,5 @@
 local init = {
-    getData = function()
+    getInterface = function()
         return require("loginInterface"):getInstance()
     end,
     getConfig = function()
