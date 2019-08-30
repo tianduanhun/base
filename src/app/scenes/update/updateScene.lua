@@ -36,7 +36,6 @@ function UpdateScene:enterGame()
 end
 
 function UpdateScene:onCleanup()
-    Updater = nil
     package.loaded["app.scenes.update.Updater"] = nil
     package.loaded["app.scenes.update.updateScene"] = nil
 end
