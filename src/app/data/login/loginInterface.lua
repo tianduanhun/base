@@ -32,6 +32,8 @@ end
 function LoginInterface:onResponseLogin(data)
     data = checktable(data)
     if data.code == 0 then
+        g_SocketManager:doMethod("bindUser", data.user.uid)
+        
         self:notifyObserver(loginConfig.opcode.LOGIN, true, data.msg, data)
     end
 end

@@ -1,13 +1,12 @@
 local g_SocketManager = class("SocketManager")
 local SimpleTCP = _require("framework.SimpleTCP")
-local baeSocket = require("baseSocket")
 local pbConfig = require("pb.pbConfig")
 
 g_SocketManager.registerEvents = {
     [g_Event.SOCKET.CONNECTED] = "onConnected",
     [g_Event.SOCKET.CLOSED] = "onClosed",
     [g_Event.SOCKET.FAILED] = "onFailed",
-    [g_Event.SOCKET.SECRET] = "onSerect",
+    [g_Event.SOCKET.DATA] = "onData",
     [pbConfig.method.HEARTBEAT] = "onHeartbeatResp"
 }
 
@@ -15,25 +14,33 @@ g_SocketManager.exportFuncs = {
     "openConnect",
     "send",
     "reConnect",
-    "closeConnect"
+    "closeConnect",
+    "bindUser"
 }
 
-local HEARTBEAT_TIME = 5       --心跳间隔时间
-local RECONNECT_TIMES = 1       --重连次数
+local connectStatus = {
+    NORMAL = 1,
+    RECONNECT = 2
+}
+
+local HEARTBEAT_TIME = 15       --心跳间隔时间
+local RECONNECT_TIMES = 3       --重连次数
 
 function g_SocketManager:ctor()
     g_BehaviorExtend(self)
     self:bindBehavior(g_BehaviorMap.eventBehavior)
     self:registerEvent()
 
-    self.sendCacheData = {}     --发送数据缓存
-    self.heartbeatIndex = 1     --心跳索引
+    self.sendCacheData = {}                     --发送数据缓存
+    self.connectStatus = connectStatus.NORMAL   --连接状态
+
     self:initParams()
 end
 
 function g_SocketManager:initParams()
+    self.heartbeatIndex = 1     --心跳索引
     self.reconnectTimes = 0     --自动重连次数
-    self.reconnectStatus = true --是否自动重连
+    self.isAutoReconnect = true --是否自动重连
     self.socketSecret = ""      --校验密钥
 end
 
@@ -43,17 +50,20 @@ function g_SocketManager:openConnect(tag)
         self:autoCloseConnect(false)
         self.connect = nil
     end
-    self.connect = baeSocket.new("192.168.220.130", 8888)
+    self.connect = g_BaseSocket.new("192.168.220.130", 8888)
 end
 
 function g_SocketManager:send(service, data)
-    table.insert(self.sendCacheData, {service = service, data = data, secret = self.socketSecret})
+    assert(service, "Service name must exist")
+    local serviceData = g_PbManager.encode(service, data)
+    local socketData = g_PbManager.encode(pbConfig.method.SOCKET, {service = service, body = serviceData})
+    table.insert(self.sendCacheData, socketData)
     self:autoSend()
 end
 
 function g_SocketManager:reConnect()
     if self.status == SimpleTCP.EVENT_FAILED or self.status == SimpleTCP.EVENT_CLOSED then
-        self.sendCacheData = {}
+        self.connectStatus = connectStatus.RECONNECT
         self.connect:doMethod("reConnect")
     end
 end
@@ -62,12 +72,16 @@ function g_SocketManager:closeConnect()
     self:autoCloseConnect(false)
 end
 
+function g_SocketManager:bindUser(uid)
+    self.userId = uid
+end
+
 ----------------------------------------------------------------
 
 function g_SocketManager:autoSend()
     if self.status == SimpleTCP.EVENT_CONNECTED and #self.sendCacheData > 0 then        --发送数据缓存里存在数据
         local data = table.remove(self.sendCacheData, 1)
-        self.connect:doMethod("sendData", data.service, data.data, data.secret)
+        self.connect:doMethod("sendData", data)
         self:autoSend()
     end
 end
@@ -92,7 +106,7 @@ function g_SocketManager:autoStopHeartbeat()
 end
 
 function g_SocketManager:autoReConnect()
-    if not self.reconnectStatus then    --属于服务器或客户端主动断开连接
+    if not self.isAutoReconnect then    --属于服务器或客户端主动断开连接
         self:initParams()
         return
     end
@@ -106,7 +120,7 @@ function g_SocketManager:autoReConnect()
 end
 
 function g_SocketManager:autoCloseConnect(bool)
-    self.reconnectStatus = bool
+    self.isAutoReconnect = bool
     if self.status == SimpleTCP.EVENT_CONNECTED then
         self.connect:doMethod("closeConnect")
     end
@@ -115,6 +129,13 @@ end
 -----------------------------------------------------------
 
 function g_SocketManager:onConnected()
+    if self.connectStatus == connectStatus.RECONNECT and self.userId and self.socketSecret then
+        local serviceData = g_PbManager.encode(pbConfig.method.RECONNECT, {uid = self.userId, secret = self.socketSecret})
+        local socketData = g_PbManager.encode(pbConfig.method.SOCKET, {service = pbConfig.method.RECONNECT, body = serviceData})
+        table.insert(self.sendCacheData, 1, socketData)
+        self.connectStatus = connectStatus.NORMAL
+    end
+
     self.status = SimpleTCP.EVENT_CONNECTED
     self:initParams()
     self:autoStartHeartbeat()
@@ -133,8 +154,19 @@ function g_SocketManager:onFailed()
     self:autoReConnect()
 end
 
-function g_SocketManager:onSerect(secret)
-    self.socketSecret = secret
+function g_SocketManager:onData(data)
+    local socketData = g_PbManager.decode(pbConfig.method.SOCKET, data)
+    if not table.isEmpty(socketData) then
+        if socketData.code == 0 then
+            if not string.isEmpty(socketData.secret) then
+                self.socketSecret = socketData.secret
+            end
+            local serviceData = g_PbManager.decode(socketData.service, socketData.body)
+            g_PushCenter.pushEvent(socketData.service, serviceData)
+        else
+            print("Socket Error, Code: " .. socketData.code)
+        end
+    end
 end
 
 function g_SocketManager:onHeartbeatResp(data)

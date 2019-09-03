@@ -1,7 +1,6 @@
-g_PbManager = require("pbManager")
-require("config.event")
+require("event")
 local init = {
-    pbManager = g_PbManager,
-    socketManager = require("socketManager").new(),
+    pbManager = require("pbManager"),
+    baseSocket = require("baseSocket")
 }
 return init

@@ -1,6 +1,6 @@
 local init = {
     commonResPath = {
-        fonts = PKGPATH .. "fonts/",
+        -- fonts = PKGPATH .. "fonts/",
     }
 }
 return init
