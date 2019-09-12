@@ -23,7 +23,6 @@ function io.writefile(path, content, mode)
     if file then
         if file:write(content) == nil then return false end
         io.close(file)
-        print(path)
         return true
     else
         return false

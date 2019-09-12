@@ -7,7 +7,7 @@ local maxHTTPRequest = 5
 local configFileName = "version.json"
 local extName = "update"
 local extTmpName = "updateTemp"
-local writablePath = FileUtils:getWritablePath() .. "files/"
+local writablePath = string.gsub((FileUtils:getWritablePath() .. "files/"), "\\", "/")
 local extPath = writablePath .. extName .. "/"
 local extTmp = writablePath .. extTmpName .. "/"
 
@@ -311,7 +311,7 @@ function Updater.init(sceneName, headUrl, callback)
 	local sandbox = FileUtils:getDataFromFile("src/" .. configFileName)
 	sandbox = json.decode(sandbox)
 	-- add extPath before apk path
-	FileUtils:setSearchPaths{extPath, "src/"}
+	FileUtils:setSearchPaths({extPath, "src/"})
 	-- get config in URes or apk
 	local data = FileUtils:getDataFromFile(configFileName)
 	data = json.decode(data)
@@ -326,7 +326,6 @@ function Updater.init(sceneName, headUrl, callback)
 
 	-- let the first frame display, and avoid to replaceScene in the scene ctor(BUG)
 	scheduler.performWithDelayGlobal(function()
-		print("== restarting scene")
 		app:enterScene(sceneName)
 	end, 0)
 end

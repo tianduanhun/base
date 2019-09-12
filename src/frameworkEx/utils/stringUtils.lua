@@ -61,10 +61,10 @@ end
     author:Bogey
     time:2019-06-17 11:04:07
     --@str: 要拆分的文字
-	--@config: 成对的字符串集合，如{"#*", "()"}
+	--@config: 成对的字符串集合，如{"#*", "!@"}
     @return: 返回拆出来的文字，并附加文字被包含的索引,普通文字索引为配置数加1
     @example: string.splitByConfig("ab#cde*fg", {"#*"})
-    @result: {{text = "ab", index = 2}, {text = "cde", index = 1}, {text = "fg", index = 2}}
+    @result: {{str = "ab", index = 2}, {str = "cde", index = 1}, {str = "fg", index = 2}}
 ]]
 function string.splitByConfig(str, config)
     local configNum = #config

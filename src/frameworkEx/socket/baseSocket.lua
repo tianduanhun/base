@@ -30,7 +30,7 @@ function BaseSocket:sendData(data)
         error("data is too long, max len is 65535(2^16 - 1")
         return
     end
-    data = string.numToAscii(dataLen, 2) .. data
+    data = string.numToAscii(dataLen, packHeadLen) .. data
     self.tcp:send(data)
 end
 

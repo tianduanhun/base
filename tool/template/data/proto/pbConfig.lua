@@ -4,7 +4,7 @@ local pkg = "template"
 local config = {}
 
 config.method = {
-    XXX = "api-template.xxx"
+    XXX = "template.xxx"
 }
 
 config.protoConfig = {
