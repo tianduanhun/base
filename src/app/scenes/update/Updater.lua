@@ -15,16 +15,16 @@ local extTmp = writablePath .. extTmpName .. "/"
 local function copyFile(src, dest)
 	local pInfo = io.pathinfo(dest)
 	FileUtils:createDirectory(pInfo.dirname) -- Create path recursively
-	local buf = io.readfile(src)
+	local buf = FileUtils:getDataFromFile(src)
 	if buf then
-		io.writefile(dest, buf, "wb")
+		FileUtils:writeStringToFile(buf, dest)
 	end
 end
 
 local function saveFile(path, buf)
 	local pInfo = io.pathinfo(path)
 	FileUtils:createDirectory(pInfo.dirname) -- Create path recursively
-	io.writefile(path, buf, "wb")
+	FileUtils:writeStringToFile(buf, path)
 end
 
 -- compare the string version, return true if need doUpdate
